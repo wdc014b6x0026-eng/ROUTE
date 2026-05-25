@@ -1,0 +1,185 @@
+@startuml ROUTE_ERD
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam entity {
+  BackgroundColor #FAFAFA
+  BorderColor #534AB7
+  FontSize 13
+}
+skinparam entityAttribute {
+  BackgroundColor #F5F4FF
+}
+
+title ROUTE — Entity Relationship Diagram\nRouting & Operational Updates for Trash Execution
+
+' ─────────────────────────────────────────
+' USER & AUTENTIKASI
+' ─────────────────────────────────────────
+entity "users" as users {
+  * id : uuid <<PK>>
+  --
+  * nama : varchar(100)
+  * email : varchar(150) <<UK>>
+  * password_hash : varchar(255)
+  * role : enum('warga','petugas','admin')
+  no_telepon : varchar(20)
+  alamat : text
+  wilayah_id : uuid <<FK>>
+  * created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "wilayah" as wilayah {
+  * id : uuid <<PK>>
+  --
+  * nama_wilayah : varchar(100)
+  * kecamatan : varchar(100)
+  * kota : varchar(100)
+  * created_at : timestamp
+}
+
+' ─────────────────────────────────────────
+' JADWAL & OPERASIONAL
+' ─────────────────────────────────────────
+entity "jadwal_tetap" as jadwal_tetap {
+  * id : uuid <<PK>>
+  --
+  * wilayah_id : uuid <<FK>>
+  * petugas_id : uuid <<FK>>
+  * hari : enum('senin','selasa','rabu',\n       'kamis','jumat','sabtu','minggu')
+  * jam_mulai : time
+  * jam_selesai : time
+  * is_active : boolean
+  * created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "jadwal_harian" as jadwal_harian {
+  * id : uuid <<PK>>
+  --
+  * jadwal_tetap_id : uuid <<FK>>
+  * petugas_id : uuid <<FK>>
+  * tanggal : date
+  * status : enum('terjadwal','dalam_perjalanan',\n        'sudah_diambil','dibatalkan')
+  catatan : text
+  status_updated_at : timestamp
+  * created_at : timestamp
+}
+
+' ─────────────────────────────────────────
+' REQUEST & RIWAYAT
+' ─────────────────────────────────────────
+entity "request_pengangkutan" as request {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>>
+  * wilayah_id : uuid <<FK>>
+  jadwal_harian_id : uuid <<FK>>
+  * jenis_sampah : enum('organik_basah','organik_kering',\n             'minyak_jelantah','campuran')
+  * estimasi_jumlah : enum('kecil','sedang','besar')
+  catatan : text
+  * status : enum('pending','disetujui',\n        'dijadwalkan','selesai','ditolak')
+  alasan_penolakan : text
+  * created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "riwayat_pengangkutan" as riwayat {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>>
+  * jadwal_harian_id : uuid <<FK>>
+  request_id : uuid <<FK>>
+  * tipe : enum('jadwal_tetap','request')
+  * waktu_pengambilan : timestamp
+  catatan_petugas : text
+  * created_at : timestamp
+}
+
+' ─────────────────────────────────────────
+' NOTIFIKASI & KONTEN
+' ─────────────────────────────────────────
+entity "notifikasi" as notifikasi {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>>
+  * judul : varchar(200)
+  * isi_pesan : text
+  * tipe : enum('jadwal','status','request','pengumuman')
+  * channel : enum('email')
+  * is_sent : boolean
+  sent_at : timestamp
+  * created_at : timestamp
+}
+
+entity "artikel_edukasi" as artikel {
+  * id : uuid <<PK>>
+  --
+  * penulis_id : uuid <<FK>>
+  * judul : varchar(255)
+  * konten : text
+  * kategori : varchar(100)
+  thumbnail_url : varchar(500)
+  * is_published : boolean
+  published_at : timestamp
+  * created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "pengumuman" as pengumuman {
+  * id : uuid <<PK>>
+  --
+  * admin_id : uuid <<FK>>
+  * judul : varchar(255)
+  * isi : text
+  * tipe : enum('kebijakan','jadwal','sampah','umum')
+  * is_active : boolean
+  berlaku_mulai : timestamp
+  berlaku_sampai : timestamp
+  * created_at : timestamp
+}
+
+' ─────────────────────────────────────────
+' RELASI
+' ─────────────────────────────────────────
+
+' users <-> wilayah
+users }o--|| wilayah : "berlokasi di"
+
+' wilayah -> jadwal_tetap
+wilayah ||--o{ jadwal_tetap : "memiliki jadwal"
+
+' users (petugas) -> jadwal_tetap & jadwal_harian
+users ||--o{ jadwal_tetap : "ditugaskan ke"
+users ||--o{ jadwal_harian : "bertugas"
+
+' jadwal_tetap -> jadwal_harian
+jadwal_tetap ||--o{ jadwal_harian : "menghasilkan"
+
+' users (warga) -> request
+users ||--o{ request : "mengajukan"
+
+' wilayah -> request
+wilayah ||--o{ request : "target wilayah"
+
+' jadwal_harian -> request (opsional, saat dijadwalkan ulang)
+jadwal_harian ||--o{ request : "menampung request"
+
+' jadwal_harian -> riwayat
+jadwal_harian ||--o{ riwayat : "dicatat di"
+
+' request -> riwayat (opsional)
+request ||--o| riwayat : "diselesaikan di"
+
+' users -> riwayat
+users ||--o{ riwayat : "memiliki riwayat"
+
+' users -> notifikasi
+users ||--o{ notifikasi : "menerima"
+
+' users -> artikel & pengumuman
+users ||--o{ artikel : "menulis"
+users ||--o{ pengumuman : "membuat"
+
+@enduml
