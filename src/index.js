@@ -3,6 +3,8 @@ import cors from 'cors';
 import 'dotenv/config';
 import wilayahRoutes from './routes/wilayah.js';
 import usersRoutes from './routes/users.js';
+import jadwalTetapRoutes from './routes/jadwalTetap.js';
+import jadwalHarianRoutes from './routes/jadwalHarian.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +15,8 @@ app.use(express.json());
 // Routes
 app.use('/api/wilayah', wilayahRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/jadwal-tetap', jadwalTetapRoutes);
+app.use('/api/jadwal-harian', jadwalHarianRoutes);
 
 // Route test
 app.get('/', (req, res) => {
