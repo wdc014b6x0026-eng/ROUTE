@@ -9,26 +9,7 @@ Sistem koordinasi pengangkutan sampah berbasis web untuk mendukung kebijakan sam
 - Angelica Audeska Sali — Frontend (WDC014B6X0026)
 - Firmanda Arbito — Backend (WDC284B6Y0007)
 - Shofy Naila Az Zahra — Backend (WDC223B6X0003)
-
-## Tentang Proyek
-
-ROUTE menghubungkan warga, petugas pengangkut, dan admin dalam satu platform untuk membuat pengangkutan sampah lebih teratur, transparan, dan efisien.
-
-**Fitur yang sudah diimplementasi (Minggu 1–3):**
-- Autentikasi pengguna (login & register dengan role)
-- Dashboard warga, petugas, dan admin
-- Manajemen jadwal pengangkutan
-- Pemantauan status pengangkutan real-time
-- Pengajuan request pengangkutan tambahan
-- Dashboard petugas (jadwal harian & daftar request)
-
-**Fitur yang sedang dikembangkan (Minggu 4–5):**
-- Halaman edukasi pengelolaan sampah
-- Fitur riwayat aktivitas
-- Fitur pengumuman admin
-- Integrasi notifikasi email
-- Integrasi frontend–backend penuh (Supabase)
-
+- 
 ## Teknologi
 
 - **Frontend:** React.js, TanStack Router, Tailwind CSS
