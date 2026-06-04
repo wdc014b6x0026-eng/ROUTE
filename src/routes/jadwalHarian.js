@@ -7,14 +7,15 @@ import {
   updateStatusJadwalHarian,
   deleteJadwalHarian
 } from '../controllers/jadwalHarianController.js';
+import { authenticate, authorizeRole } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.get('/',                    getAllJadwalHarian);
-router.get('/:id',                 getJadwalHarianById);
-router.get('/tanggal/:tanggal',    getJadwalHarianByTanggal);
-router.post('/',                   createJadwalHarian);
-router.put('/:id',                 updateStatusJadwalHarian);
-router.delete('/:id',              deleteJadwalHarian);
+router.get('/',                    authenticate, getAllJadwalHarian);
+router.get('/tanggal/:tanggal',    authenticate, getJadwalHarianByTanggal);
+router.get('/:id',                 authenticate, getJadwalHarianById);
+router.post('/',                   authenticate, authorizeRole('admin'), createJadwalHarian);
+router.put('/:id',                 authenticate, authorizeRole('petugas', 'admin'), updateStatusJadwalHarian);
+router.delete('/:id',              authenticate, authorizeRole('admin'), deleteJadwalHarian);
 
 export default router;
