@@ -67,9 +67,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
         open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         <div className="p-5 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/assets/logo-icon.png" alt="ROUTE icon" className="size-9 object-contain" />
-            <img src="/assets/logo-full.png" alt="ROUTE" className="h-7 object-contain" />
+          <Link to="/">
+            <img src="/logo-full.png" alt="ROUTE" className="h-10 w-auto" />
           </Link>
           <button onClick={() => setOpen(false)} className="lg:hidden p-1 text-muted-foreground">
             <X className="size-5" />
