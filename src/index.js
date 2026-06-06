@@ -7,6 +7,9 @@ import usersRoutes from './routes/users.js';
 import jadwalTetapRoutes from './routes/jadwalTetap.js';
 import jadwalHarianRoutes from './routes/jadwalHarian.js';
 import requestRoutes from './routes/request.js';
+import riwayatRoutes from './routes/riwayat.js';
+import artikelRoutes from './routes/artikel.js';
+import pengumumanRoutes from './routes/pengumuman.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +23,9 @@ app.use('/api/users', usersRoutes);
 app.use('/api/jadwal-tetap', jadwalTetapRoutes);
 app.use('/api/jadwal-harian', jadwalHarianRoutes);
 app.use('/api/request', requestRoutes);
+app.use('/api/riwayat', riwayatRoutes);
+app.use('/api/artikel', artikelRoutes);
+app.use('/api/pengumuman', pengumumanRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'ROUTE API is running!' });
