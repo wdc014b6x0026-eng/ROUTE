@@ -5,16 +5,20 @@ import {
   getJadwalTetapByWilayah,
   createJadwalTetap,
   updateJadwalTetap,
-  deleteJadwalTetap
+  deleteJadwalTetap,
 } from '../controllers/jadwalTetapController.js';
+import { authenticate, authorizeRole } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.get('/',                        getAllJadwalTetap);
-router.get('/:id',                     getJadwalTetapById);
-router.get('/wilayah/:wilayah_id',     getJadwalTetapByWilayah);
-router.post('/',                       createJadwalTetap);
-router.put('/:id',                     updateJadwalTetap);
-router.delete('/:id',                  deleteJadwalTetap);
+// Semua user login bisa baca jadwal tetap
+router.get('/',                    authenticate, getAllJadwalTetap);
+router.get('/wilayah/:wilayah_id', authenticate, getJadwalTetapByWilayah);
+router.get('/:id',                 authenticate, getJadwalTetapById);
+
+// Hanya admin yang bisa CUD
+router.post('/',    authenticate, authorizeRole('admin'), createJadwalTetap);
+router.put('/:id',  authenticate, authorizeRole('admin'), updateJadwalTetap);
+router.delete('/:id', authenticate, authorizeRole('admin'), deleteJadwalTetap);
 
 export default router;
