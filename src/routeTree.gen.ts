@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PetugasStatusRouteImport } from './routes/petugas.status'
 import { Route as PetugasRequestRouteImport } from './routes/petugas.request'
 import { Route as PetugasProfileRouteImport } from './routes/petugas.profile'
+import { Route as PetugasMapRouteImport } from './routes/petugas.map'
 import { Route as PetugasJadwalHariIniRouteImport } from './routes/petugas.jadwal-hari-ini'
 import { Route as PetugasHistoryRouteImport } from './routes/petugas.history'
 import { Route as PetugasDashboardRouteImport } from './routes/petugas.dashboard'
@@ -24,13 +25,16 @@ import { Route as AppStatusRouteImport } from './routes/app.status'
 import { Route as AppScheduleRouteImport } from './routes/app.schedule'
 import { Route as AppRequestRouteImport } from './routes/app.request'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppMapRouteImport } from './routes/app.map'
 import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
+import { Route as AdminWilayahRouteImport } from './routes/admin.wilayah'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSchedulesRouteImport } from './routes/admin.schedules'
 import { Route as AdminRequestsRouteImport } from './routes/admin.requests'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminPetugasRouteImport } from './routes/admin.petugas'
+import { Route as AdminMapRouteImport } from './routes/admin.map'
 import { Route as AdminEducationRouteImport } from './routes/admin.education'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
@@ -75,6 +79,11 @@ const PetugasProfileRoute = PetugasProfileRouteImport.update({
   path: '/petugas/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PetugasMapRoute = PetugasMapRouteImport.update({
+  id: '/petugas/map',
+  path: '/petugas/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PetugasJadwalHariIniRoute = PetugasJadwalHariIniRouteImport.update({
   id: '/petugas/jadwal-hari-ini',
   path: '/petugas/jadwal-hari-ini',
@@ -110,6 +119,11 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/app/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppMapRoute = AppMapRouteImport.update({
+  id: '/app/map',
+  path: '/app/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
   id: '/app/history',
   path: '/app/history',
@@ -118,6 +132,11 @@ const AppHistoryRoute = AppHistoryRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/app/dashboard',
   path: '/app/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWilayahRoute = AdminWilayahRouteImport.update({
+  id: '/admin/wilayah',
+  path: '/admin/wilayah',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -145,6 +164,11 @@ const AdminPetugasRoute = AdminPetugasRouteImport.update({
   path: '/admin/petugas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMapRoute = AdminMapRouteImport.update({
+  id: '/admin/map',
+  path: '/admin/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminEducationRoute = AdminEducationRouteImport.update({
   id: '/admin/education',
   path: '/admin/education',
@@ -170,13 +194,16 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/education': typeof AdminEducationRoute
+  '/admin/map': typeof AdminMapRoute
   '/admin/petugas': typeof AdminPetugasRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/schedules': typeof AdminSchedulesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/wilayah': typeof AdminWilayahRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/history': typeof AppHistoryRoute
+  '/app/map': typeof AppMapRoute
   '/app/profile': typeof AppProfileRoute
   '/app/request': typeof AppRequestRoute
   '/app/schedule': typeof AppScheduleRoute
@@ -184,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/petugas/dashboard': typeof PetugasDashboardRoute
   '/petugas/history': typeof PetugasHistoryRoute
   '/petugas/jadwal-hari-ini': typeof PetugasJadwalHariIniRoute
+  '/petugas/map': typeof PetugasMapRoute
   '/petugas/profile': typeof PetugasProfileRoute
   '/petugas/request': typeof PetugasRequestRoute
   '/petugas/status': typeof PetugasStatusRoute
@@ -197,13 +225,16 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/education': typeof AdminEducationRoute
+  '/admin/map': typeof AdminMapRoute
   '/admin/petugas': typeof AdminPetugasRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/schedules': typeof AdminSchedulesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/wilayah': typeof AdminWilayahRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/history': typeof AppHistoryRoute
+  '/app/map': typeof AppMapRoute
   '/app/profile': typeof AppProfileRoute
   '/app/request': typeof AppRequestRoute
   '/app/schedule': typeof AppScheduleRoute
@@ -211,6 +242,7 @@ export interface FileRoutesByTo {
   '/petugas/dashboard': typeof PetugasDashboardRoute
   '/petugas/history': typeof PetugasHistoryRoute
   '/petugas/jadwal-hari-ini': typeof PetugasJadwalHariIniRoute
+  '/petugas/map': typeof PetugasMapRoute
   '/petugas/profile': typeof PetugasProfileRoute
   '/petugas/request': typeof PetugasRequestRoute
   '/petugas/status': typeof PetugasStatusRoute
@@ -225,13 +257,16 @@ export interface FileRoutesById {
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/education': typeof AdminEducationRoute
+  '/admin/map': typeof AdminMapRoute
   '/admin/petugas': typeof AdminPetugasRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/schedules': typeof AdminSchedulesRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/wilayah': typeof AdminWilayahRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/history': typeof AppHistoryRoute
+  '/app/map': typeof AppMapRoute
   '/app/profile': typeof AppProfileRoute
   '/app/request': typeof AppRequestRoute
   '/app/schedule': typeof AppScheduleRoute
@@ -239,6 +274,7 @@ export interface FileRoutesById {
   '/petugas/dashboard': typeof PetugasDashboardRoute
   '/petugas/history': typeof PetugasHistoryRoute
   '/petugas/jadwal-hari-ini': typeof PetugasJadwalHariIniRoute
+  '/petugas/map': typeof PetugasMapRoute
   '/petugas/profile': typeof PetugasProfileRoute
   '/petugas/request': typeof PetugasRequestRoute
   '/petugas/status': typeof PetugasStatusRoute
@@ -254,13 +290,16 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/dashboard'
     | '/admin/education'
+    | '/admin/map'
     | '/admin/petugas'
     | '/admin/profile'
     | '/admin/requests'
     | '/admin/schedules'
     | '/admin/users'
+    | '/admin/wilayah'
     | '/app/dashboard'
     | '/app/history'
+    | '/app/map'
     | '/app/profile'
     | '/app/request'
     | '/app/schedule'
@@ -268,6 +307,7 @@ export interface FileRouteTypes {
     | '/petugas/dashboard'
     | '/petugas/history'
     | '/petugas/jadwal-hari-ini'
+    | '/petugas/map'
     | '/petugas/profile'
     | '/petugas/request'
     | '/petugas/status'
@@ -281,13 +321,16 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/dashboard'
     | '/admin/education'
+    | '/admin/map'
     | '/admin/petugas'
     | '/admin/profile'
     | '/admin/requests'
     | '/admin/schedules'
     | '/admin/users'
+    | '/admin/wilayah'
     | '/app/dashboard'
     | '/app/history'
+    | '/app/map'
     | '/app/profile'
     | '/app/request'
     | '/app/schedule'
@@ -295,6 +338,7 @@ export interface FileRouteTypes {
     | '/petugas/dashboard'
     | '/petugas/history'
     | '/petugas/jadwal-hari-ini'
+    | '/petugas/map'
     | '/petugas/profile'
     | '/petugas/request'
     | '/petugas/status'
@@ -308,13 +352,16 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/dashboard'
     | '/admin/education'
+    | '/admin/map'
     | '/admin/petugas'
     | '/admin/profile'
     | '/admin/requests'
     | '/admin/schedules'
     | '/admin/users'
+    | '/admin/wilayah'
     | '/app/dashboard'
     | '/app/history'
+    | '/app/map'
     | '/app/profile'
     | '/app/request'
     | '/app/schedule'
@@ -322,6 +369,7 @@ export interface FileRouteTypes {
     | '/petugas/dashboard'
     | '/petugas/history'
     | '/petugas/jadwal-hari-ini'
+    | '/petugas/map'
     | '/petugas/profile'
     | '/petugas/request'
     | '/petugas/status'
@@ -336,13 +384,16 @@ export interface RootRouteChildren {
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminEducationRoute: typeof AdminEducationRoute
+  AdminMapRoute: typeof AdminMapRoute
   AdminPetugasRoute: typeof AdminPetugasRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminRequestsRoute: typeof AdminRequestsRoute
   AdminSchedulesRoute: typeof AdminSchedulesRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  AdminWilayahRoute: typeof AdminWilayahRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppHistoryRoute: typeof AppHistoryRoute
+  AppMapRoute: typeof AppMapRoute
   AppProfileRoute: typeof AppProfileRoute
   AppRequestRoute: typeof AppRequestRoute
   AppScheduleRoute: typeof AppScheduleRoute
@@ -350,6 +401,7 @@ export interface RootRouteChildren {
   PetugasDashboardRoute: typeof PetugasDashboardRoute
   PetugasHistoryRoute: typeof PetugasHistoryRoute
   PetugasJadwalHariIniRoute: typeof PetugasJadwalHariIniRoute
+  PetugasMapRoute: typeof PetugasMapRoute
   PetugasProfileRoute: typeof PetugasProfileRoute
   PetugasRequestRoute: typeof PetugasRequestRoute
   PetugasStatusRoute: typeof PetugasStatusRoute
@@ -413,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PetugasProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/petugas/map': {
+      id: '/petugas/map'
+      path: '/petugas/map'
+      fullPath: '/petugas/map'
+      preLoaderRoute: typeof PetugasMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/petugas/jadwal-hari-ini': {
       id: '/petugas/jadwal-hari-ini'
       path: '/petugas/jadwal-hari-ini'
@@ -462,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/map': {
+      id: '/app/map'
+      path: '/app/map'
+      fullPath: '/app/map'
+      preLoaderRoute: typeof AppMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/history': {
       id: '/app/history'
       path: '/app/history'
@@ -474,6 +540,13 @@ declare module '@tanstack/react-router' {
       path: '/app/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/wilayah': {
+      id: '/admin/wilayah'
+      path: '/admin/wilayah'
+      fullPath: '/admin/wilayah'
+      preLoaderRoute: typeof AdminWilayahRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -511,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPetugasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/map': {
+      id: '/admin/map'
+      path: '/admin/map'
+      fullPath: '/admin/map'
+      preLoaderRoute: typeof AdminMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/education': {
       id: '/admin/education'
       path: '/admin/education'
@@ -544,13 +624,16 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminEducationRoute: AdminEducationRoute,
+  AdminMapRoute: AdminMapRoute,
   AdminPetugasRoute: AdminPetugasRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminRequestsRoute: AdminRequestsRoute,
   AdminSchedulesRoute: AdminSchedulesRoute,
   AdminUsersRoute: AdminUsersRoute,
+  AdminWilayahRoute: AdminWilayahRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppHistoryRoute: AppHistoryRoute,
+  AppMapRoute: AppMapRoute,
   AppProfileRoute: AppProfileRoute,
   AppRequestRoute: AppRequestRoute,
   AppScheduleRoute: AppScheduleRoute,
@@ -558,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   PetugasDashboardRoute: PetugasDashboardRoute,
   PetugasHistoryRoute: PetugasHistoryRoute,
   PetugasJadwalHariIniRoute: PetugasJadwalHariIniRoute,
+  PetugasMapRoute: PetugasMapRoute,
   PetugasProfileRoute: PetugasProfileRoute,
   PetugasRequestRoute: PetugasRequestRoute,
   PetugasStatusRoute: PetugasStatusRoute,

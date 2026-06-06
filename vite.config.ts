@@ -12,8 +12,15 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   server: {
-    port: 3000,
-    host: true,
-    strictPort: true,
+    port: 5173,
+    host: "0.0.0.0",   // binds to ALL interfaces — IPv4 + IPv6
+    strictPort: false,
+    proxy: {
+      // Proxy /api calls to backend so you never hit CORS issues
+      "/api": {
+        target: "http://127.0.0.1:3000",
+        changeOrigin: true,
+      },
+    },
   },
 });

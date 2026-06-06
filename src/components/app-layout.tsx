@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import {
   LayoutDashboard, Calendar, Truck, PlusCircle, History, BookOpen, Megaphone, User,
-  Users, ClipboardList, MapPin, Map, FileText, LogOut, Menu, X, Leaf, Bell, Activity, ListChecks,
+  Users, ClipboardList, MapPin, Map, FileText, LogOut, Menu, X, Leaf, Bell, Activity, ListChecks, Globe,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ const NAVS: Record<string, Item[]> = {
     { to: "/app/schedule", label: "Schedule", icon: Calendar },
     { to: "/app/status", label: "Pickup Status", icon: Truck },
     { to: "/app/request", label: "Request Pickup", icon: PlusCircle },
+    { to: "/app/map", label: "My Location", icon: MapPin },
     { to: "/app/history", label: "History", icon: History },
     { to: "/education", label: "Education", icon: BookOpen },
     { to: "/announcements", label: "Announcements", icon: Megaphone },
@@ -23,6 +24,7 @@ const NAVS: Record<string, Item[]> = {
   transporter: [
     { to: "/petugas/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/petugas/jadwal-hari-ini", label: "Today Schedule", icon: ListChecks },
+    { to: "/petugas/map", label: "Route Map", icon: Map },
     { to: "/petugas/request", label: "Requests", icon: ClipboardList },
     { to: "/petugas/status", label: "Update Status", icon: Activity },
     { to: "/petugas/history", label: "History", icon: History },
@@ -32,9 +34,11 @@ const NAVS: Record<string, Item[]> = {
   admin: [
     { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/admin/users", label: "Users", icon: Users },
+    { to: "/admin/map", label: "User Map", icon: Map },
     { to: "/admin/schedules", label: "Schedules", icon: Calendar },
+    { to: "/admin/wilayah", label: "Wilayah", icon: Globe },
     { to: "/admin/requests", label: "Requests", icon: ClipboardList },
-    { to: "/admin/petugas", label: "Transporters", icon: Map },
+    { to: "/admin/petugas", label: "Transporters", icon: MapPin },
     { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { to: "/admin/education", label: "Education", icon: FileText },
     { to: "/admin/profile", label: "Profile", icon: User },
