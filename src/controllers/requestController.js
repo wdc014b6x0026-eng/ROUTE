@@ -1,5 +1,27 @@
 import supabase from '../config/supabase.js';
 
+const toFrontendStatus = (status) => {
+  const map = {
+    pending: 'menunggu',
+    disetujui: 'diterima',
+    dijadwalkan: 'dijadwalkan',
+    selesai: 'selesai',
+    ditolak: 'ditolak',
+  };
+  return map[status] ?? status;
+};
+
+const toDbStatus = (status) => {
+  const map = {
+    menunggu: 'pending',
+    diterima: 'disetujui',
+    dijadwalkan: 'dijadwalkan',
+    selesai: 'selesai',
+    ditolak: 'ditolak',
+  };
+  return map[status] ?? status;
+};
+
 export const getAllRequest = async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -14,7 +36,8 @@ export const getAllRequest = async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ status: 'success', data });
+    const mapped = data.map(r => ({ ...r, status: toFrontendStatus(r.status) }));
+    res.json({ status: 'success', data: mapped });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
@@ -36,7 +59,7 @@ export const getRequestById = async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ status: 'success', data });
+    res.json({ status: 'success', data: { ...data, status: toFrontendStatus(data.status) } });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
@@ -57,7 +80,8 @@ export const getRequestByUser = async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ status: 'success', data });
+    const mapped = data.map(r => ({ ...r, status: toFrontendStatus(r.status) }));
+    res.json({ status: 'success', data: mapped });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
@@ -75,7 +99,7 @@ export const createRequest = async (req, res) => {
 
     if (error) throw error;
 
-    res.status(201).json({ status: 'success', data: data[0] });
+    res.status(201).json({ status: 'success', data: { ...data[0], status: toFrontendStatus(data[0].status) } });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
@@ -84,7 +108,8 @@ export const createRequest = async (req, res) => {
 export const updateStatusRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, alasan_penolakan, jadwal_harian_id } = req.body;
+    const { status: frontendStatus, alasan_penolakan, jadwal_harian_id } = req.body;
+    const status = toDbStatus(frontendStatus);
 
     const { data, error } = await supabase
       .from('request_pengangkutan')
@@ -94,7 +119,7 @@ export const updateStatusRequest = async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ status: 'success', data: data[0] });
+    res.json({ status: 'success', data: { ...data[0], status: toFrontendStatus(data[0].status) } });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
