@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, PageHeader } from "@/components/app-layout";
-import { lazy, Suspense, useState } from "react";
-import { mockTodayJobs } from "@/lib/mock-data";
-import { MapPin, Loader2, Clock, CheckCircle2, Truck, Circle } from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { apiFetch, type ApiUser, type ApiJadwalTetap } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { MapPin, Loader2, Home, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { MapMarker } from "@/components/leaflet-map";
 
 const LeafletMap = lazy(() =>
   import("@/components/leaflet-map").then((m) => ({ default: m.LeafletMap }))
@@ -11,149 +13,171 @@ const LeafletMap = lazy(() =>
 
 export const Route = createFileRoute("/petugas/map")({ component: Page });
 
-const STATUS_COLOR = {
-  scheduled: "blue",
-  on_the_way: "orange",
-  picked_up: "green",
-  skipped: "red",
-} as const;
-
-const STATUS_ICON = {
-  scheduled: Clock,
-  on_the_way: Truck,
-  picked_up: CheckCircle2,
-  skipped: Circle,
-};
-
-const STATUS_LABEL = {
-  scheduled: "Scheduled",
-  on_the_way: "On the Way",
-  picked_up: "Picked Up",
-  skipped: "Skipped",
-};
-
 function Page() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [residents, setResidents] = useState<ApiUser[]>([]);
+  const [schedule, setSchedule] = useState<ApiJadwalTetap | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
-  const jobs = mockTodayJobs.filter((j) => j.lat && j.lng);
+  useEffect(() => {
+    if (!user?.wilayah_id) { setLoading(false); return; }
 
-  const markers = jobs.map((j, idx) => ({
-    id: j.id,
-    lat: j.lat!,
-    lng: j.lng!,
-    label: `#${idx + 1} — ${j.resident}`,
-    sublabel: j.address,
-    color: STATUS_COLOR[j.status as keyof typeof STATUS_COLOR] ?? "blue",
-    pulse: j.status === "on_the_way",
+    Promise.all([
+      apiFetch<ApiUser[]>(`/users/wilayah/${user.wilayah_id}`),
+      apiFetch<ApiJadwalTetap[]>(`/jadwal-tetap/wilayah/${user.wilayah_id}`)
+        .then(list => list[0] ?? null),
+    ])
+      .then(([r, s]) => { setResidents(r); setSchedule(s); })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [user?.wilayah_id]);
+
+  const withCoords = residents.filter(r => r.lat != null && r.lng != null);
+
+  const filtered = withCoords.filter(r =>
+    !search ||
+    r.nama.toLowerCase().includes(search.toLowerCase()) ||
+    (r.alamat ?? "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  const markers: MapMarker[] = filtered.map(r => ({
+    id: r.id,
+    lat: r.lat!,
+    lng: r.lng!,
+    label: r.nama,
+    sublabel: r.alamat ?? "",
+    color: "blue",
   }));
 
-  const stats = {
-    total: jobs.length,
-    done: jobs.filter((j) => j.status === "picked_up").length,
-    pending: jobs.filter((j) => j.status === "scheduled").length,
-    active: jobs.filter((j) => j.status === "on_the_way").length,
-  };
+  // Default center to Bali if no coords yet
+  const center: [number, number] = filtered.length > 0
+    ? [filtered[0].lat!, filtered[0].lng!]
+    : [-8.5069, 115.2625];
 
   return (
     <AppLayout>
       <PageHeader
         title="Route Map"
-        description="Today's pickup locations and route overview"
+        description={schedule
+          ? `${schedule.wilayah?.nama_wilayah ?? "Area"} · ${schedule.hari} ${schedule.jam_mulai?.slice(0, 5)}–${schedule.jam_selesai?.slice(0, 5)}`
+          : "Today's area overview"}
       />
 
-      <div className="space-y-4">
-        {/* Stats strip */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: "Total Stops", value: stats.total, color: "text-foreground" },
-            { label: "Completed", value: stats.done, color: "text-success" },
-            { label: "Remaining", value: stats.pending + stats.active, color: "text-warning" },
-          ].map((s) => (
-            <div key={s.label} className="bg-card border border-border rounded-xl p-3 text-center shadow-card">
-              <div className={cn("text-2xl font-bold", s.color)}>{s.value}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{s.label}</div>
-            </div>
-          ))}
-        </div>
+      {error && (
+        <div className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">{error}</div>
+      )}
 
-        {/* Map */}
-        <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <MapPin className="size-4 text-primary" /> Today's Route
-            </div>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-blue-500 inline-block" />Scheduled</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-orange-400 inline-block" />On way</span>
-              <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-green-500 inline-block" />Done</span>
-            </div>
-          </div>
-          <Suspense
-            fallback={
-              <div className="h-[380px] flex items-center justify-center bg-muted/30">
-                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      {!user?.wilayah_id && !loading && (
+        <div className="bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground shadow-card text-sm">
+          Your account has no assigned wilayah. Ask an admin to assign you.
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : user?.wilayah_id && (
+        <div className="space-y-4">
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-card border border-border rounded-xl p-3 text-center shadow-card">
+              <div className="flex items-center justify-center mb-1">
+                <Users className="size-4 text-primary" />
               </div>
-            }
-          >
-            <LeafletMap
-              markers={markers}
-              className="h-[380px] w-full"
-              showRoute
-              zoom={13}
-            />
-          </Suspense>
-        </div>
+              <div className="text-2xl font-bold text-primary">{residents.length}</div>
+              <div className="text-xs text-muted-foreground">Residents in area</div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-3 text-center shadow-card">
+              <div className="flex items-center justify-center mb-1">
+                <MapPin className="size-4 text-info" />
+              </div>
+              <div className="text-2xl font-bold text-info">{withCoords.length}</div>
+              <div className="text-xs text-muted-foreground">With location pin</div>
+            </div>
+          </div>
 
-        {/* Job list */}
-        <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-sm font-medium">Stop List</div>
-          <div className="divide-y divide-border">
-            {jobs.map((job, idx) => {
-              const Icon = STATUS_ICON[job.status as keyof typeof STATUS_ICON] ?? Circle;
-              const color = STATUS_COLOR[job.status as keyof typeof STATUS_COLOR] ?? "blue";
-              const colorCls = {
-                blue: "text-blue-500 bg-blue-500/10",
-                orange: "text-orange-500 bg-orange-500/10",
-                green: "text-green-500 bg-green-500/10",
-                red: "text-red-500 bg-red-500/10",
-                purple: "text-purple-500 bg-purple-500/10",
-              }[color];
+          {/* Search */}
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search resident by name or address…"
+            className="w-full h-10 px-4 rounded-xl border border-input bg-background focus:ring-2 focus:ring-ring focus:outline-none text-sm"
+          />
 
-              return (
-                <button
-                  key={job.id}
-                  type="button"
-                  onClick={() => setSelectedId(selectedId === job.id ? null : job.id)}
-                  className={cn(
-                    "w-full text-left px-4 py-3.5 flex items-start gap-3 hover:bg-muted/40 transition",
-                    selectedId === job.id && "bg-primary/5"
-                  )}
-                >
-                  <div className={cn("size-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold", colorCls)}>
-                    {idx + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-sm truncate">{job.resident}</span>
-                      <span className="text-xs text-muted-foreground shrink-0">{job.time}</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5 truncate">{job.address}</div>
-                    {selectedId === job.id && (
-                      <div className="mt-2 text-xs bg-muted rounded-lg px-3 py-2 flex items-start gap-1.5">
-                        <span className="font-medium">Notes:</span> {job.notes}
+          {/* Map */}
+          <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <MapPin className="size-4 text-primary" />
+                {filtered.length} resident{filtered.length !== 1 ? "s" : ""} shown
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="size-2.5 rounded-full bg-blue-500 inline-block" /> Residents
+              </div>
+            </div>
+            <Suspense
+              fallback={
+                <div className="h-[400px] flex items-center justify-center bg-muted/30">
+                  <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                </div>
+              }
+            >
+              {filtered.length > 0 ? (
+                <LeafletMap
+                  markers={markers}
+                  center={center}
+                  className="h-[400px] w-full"
+                  zoom={14}
+                />
+              ) : (
+                <div className="h-[400px] flex flex-col items-center justify-center text-muted-foreground gap-2">
+                  <MapPin className="size-8 opacity-30" />
+                  <p className="text-sm">
+                    {withCoords.length === 0
+                      ? "No residents have set a location yet"
+                      : "No residents match your search"}
+                  </p>
+                </div>
+              )}
+            </Suspense>
+          </div>
+
+          {/* Resident list */}
+          <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border text-sm font-medium">Stop List</div>
+            {residents.length === 0 ? (
+              <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                No residents registered in your area yet.
+              </div>
+            ) : (
+              <div className="divide-y divide-border max-h-80 overflow-y-auto">
+                {residents
+                  .filter(r => !search ||
+                    r.nama.toLowerCase().includes(search.toLowerCase()) ||
+                    (r.alamat ?? "").toLowerCase().includes(search.toLowerCase()))
+                  .map((r, idx) => (
+                    <div key={r.id} className="px-4 py-3 flex items-center gap-3">
+                      <div className="size-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
+                        {idx + 1}
                       </div>
-                    )}
-                  </div>
-                  <div className={cn("flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full shrink-0", colorCls)}>
-                    <Icon className="size-3" />
-                    {STATUS_LABEL[job.status as keyof typeof STATUS_LABEL]}
-                  </div>
-                </button>
-              );
-            })}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{r.nama}</div>
+                        <div className="text-xs text-muted-foreground truncate">{r.alamat ?? "—"}</div>
+                      </div>
+                      <div className={cn(
+                        "size-2 rounded-full shrink-0",
+                        r.lat != null ? "bg-success" : "bg-muted-foreground/40"
+                      )} title={r.lat != null ? "Location set" : "No location"} />
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </AppLayout>
   );
 }
