@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS users (
   wilayah_id    UUID          REFERENCES wilayah(id) ON DELETE SET NULL,
   created_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  lat  DOUBLE PRECISION,
+  lng  DOUBLE PRECISION
 );
 
 -- Index untuk filter user berdasarkan role dan wilayah

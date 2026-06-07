@@ -10,13 +10,13 @@ import { authenticate, authorizeRole } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// Semua user login bisa baca wilayah (untuk dropdown form register, dll)
-router.get('/',       authenticate, getAllWilayah);
-router.get('/:id',    authenticate, getWilayahById);
+// Public — needed for the register form (unauthenticated users pick their area)
+router.get('/', getAllWilayah);
+router.get('/:id', getWilayahById);
 
-// Hanya admin yang bisa buat / ubah / hapus wilayah
+// Admin-only mutations
 router.post('/',      authenticate, authorizeRole('admin'), createWilayah);
-router.put('/:id',    authenticate, authorizeRole('admin'), updateWilayah);
+router.put('/:id',   authenticate, authorizeRole('admin'), updateWilayah);
 router.delete('/:id', authenticate, authorizeRole('admin'), deleteWilayah);
 
 export default router;
