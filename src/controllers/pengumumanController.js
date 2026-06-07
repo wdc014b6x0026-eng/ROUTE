@@ -1,5 +1,20 @@
 import supabase from '../config/supabase.js';
 
+const toDbTipe = (tipe) => {
+  const map = {
+    'Event': 'umum',
+    'Policy': 'kebijakan',
+    'Schedule': 'jadwal',
+    'General': 'umum',
+    'Emergency': 'umum',
+    'kebijakan': 'kebijakan',
+    'jadwal': 'jadwal',
+    'sampah': 'sampah',
+    'umum': 'umum',
+  };
+  return map[tipe] ?? 'umum';
+};
+
 export const getAllPengumuman = async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -47,7 +62,8 @@ export const getActivePengumuman = async (req, res) => {
 
 export const createPengumuman = async (req, res) => {
   try {
-    const { judul, isi, tipe, berlaku_mulai, berlaku_sampai } = req.body;
+    const { judul, isi, tipe: rawTipe, berlaku_mulai, berlaku_sampai } = req.body;
+    const tipe = toDbTipe(rawTipe);
     const admin_id = req.user.id;
 
     const { data, error } = await supabase
@@ -65,7 +81,8 @@ export const createPengumuman = async (req, res) => {
 export const updatePengumuman = async (req, res) => {
   try {
     const { id } = req.params;
-    const { judul, isi, tipe, is_active, berlaku_mulai, berlaku_sampai } = req.body;
+    const { judul, isi, tipe: rawTipe, is_active, berlaku_mulai, berlaku_sampai } = req.body;
+    const tipe = toDbTipe(rawTipe);
 
     const { data, error } = await supabase
       .from('pengumuman')
