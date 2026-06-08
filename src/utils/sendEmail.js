@@ -21,9 +21,10 @@ export const emailTemplates = {
     subject: 'Request Pengangkutan Berhasil Dibuat',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #16a34a; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">ROUTE</h1>
-        </div>
+        <div style="background: #ffffff; padding: 20px; text-align: center;">
+            <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
+                alt="ROUTE" style="height: 50px; width: auto;" />
+            </div>
         <div style="padding: 30px; background: #f9fafb;">
           <h2>Request Pengangkutan Diterima</h2>
           <p>Halo <strong>${userName}</strong>,</p>
@@ -55,9 +56,10 @@ export const emailTemplates = {
     subject: `Status Request Diperbarui: ${status}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #16a34a; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">ROUTE</h1>
-        </div>
+        <div style="background: #ffffff; padding: 20px; text-align: center;">
+            <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
+                alt="ROUTE" style="height: 50px; width: auto;" />
+            </div>
         <div style="padding: 30px; background: #f9fafb;">
           <h2>Update Status Request</h2>
           <p>Halo <strong>${userName}</strong>,</p>
@@ -76,9 +78,10 @@ export const emailTemplates = {
     subject: 'Pengingat Jadwal Pengangkutan Sampah',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #16a34a; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">ROUTE</h1>
-        </div>
+        <div style="background: #ffffff; padding: 20px; text-align: center;">
+            <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
+                alt="ROUTE" style="height: 50px; width: auto;" />
+            </div>
         <div style="padding: 30px; background: #f9fafb;">
           <h2>Pengingat Jadwal Pengangkutan</h2>
           <p>Halo <strong>${userName}</strong>,</p>
