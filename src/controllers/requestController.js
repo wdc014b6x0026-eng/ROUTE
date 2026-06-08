@@ -1,4 +1,5 @@
 import supabase from '../config/supabase.js';
+import { sendEmail, emailTemplates } from '../utils/sendEmail.js';
 
 const toFrontendStatus = (status) => {
   const map = {
@@ -99,6 +100,19 @@ export const createRequest = async (req, res) => {
 
     if (error) throw error;
 
+    // Kirim email notifikasi ke user
+    const { data: userData } = await supabase
+      .from('users')
+      .select('nama, email')
+      .eq('id', user_id)
+      .single();
+    
+    console.log('userData email check:', userData);  
+    if (userData?.email) {
+      const template = emailTemplates.requestCreated(userData.nama, jenis_sampah, estimasi_jumlah);
+      await sendEmail({ to: userData.email, ...template });
+    }
+
     res.status(201).json({ status: 'success', data: { ...data[0], status: toFrontendStatus(data[0].status) } });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -115,9 +129,20 @@ export const updateStatusRequest = async (req, res) => {
       .from('request_pengangkutan')
       .update({ status, alasan_penolakan, jadwal_harian_id })
       .eq('id', id)
-      .select();
+      .select(`*, users (id, nama, email)`);
 
     if (error) throw error;
+
+    // Kirim email notifikasi ke user
+    const userData = data[0]?.users;
+    if (userData?.email) {
+      const template = emailTemplates.requestStatusUpdated(
+        userData.nama,
+        toFrontendStatus(status),
+        alasan_penolakan
+      );
+      await sendEmail({ to: userData.email, ...template });
+    }
 
     res.json({ status: 'success', data: { ...data[0], status: toFrontendStatus(data[0].status) } });
   } catch (error) {
