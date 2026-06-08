@@ -7,7 +7,12 @@ import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/app/request")({ component: Page });
 
-const WASTE_TYPES = ["Organik", "Non-organik", "Daur ulang", "Minyak goreng bekas"];
+const WASTE_TYPES = [
+  { label: "Organik", value: "organik_basah" },
+  { label: "Non-organik", value: "organik_kering" },
+  { label: "Daur ulang", value: "campuran" },
+  { label: "Minyak goreng bekas", value: "minyak_jelantah" },
+];
 
 function Page() {
   const { user } = useAuth();
@@ -16,8 +21,8 @@ function Page() {
   const [error, setError] = useState("");
   const [wilayahList, setWilayahList] = useState<ApiWilayah[]>([]);
 
-  const [jenisSampah, setJenisSampah] = useState(WASTE_TYPES[0]);
-  const [estimasi, setEstimasi] = useState("");
+  const [jenisSampah, setJenisSampah] = useState("organik_basah");
+  const [estimasi, setEstimasi] = useState("kecil");
   const [catatan, setCatatan] = useState("");
   const [wilayahId, setWilayahId] = useState(user?.wilayah_id ?? "");
 
@@ -64,13 +69,17 @@ function Page() {
                 <label className="text-sm font-medium">Waste type</label>
                 <select value={jenisSampah} onChange={e => setJenisSampah(e.target.value)}
                   className="mt-1.5 w-full h-11 px-3 rounded-lg border border-input bg-background">
-                  {WASTE_TYPES.map(t => <option key={t}>{t}</option>)}
+                  {WASTE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-sm font-medium">Estimated amount</label>
-                <input required value={estimasi} onChange={e => setEstimasi(e.target.value)}
-                  placeholder="e.g. 5 kg" className="mt-1.5 w-full h-11 px-3 rounded-lg border border-input bg-background" />
+                <select value={estimasi} onChange={e => setEstimasi(e.target.value)}
+                  className="mt-1.5 w-full h-11 px-3 rounded-lg border border-input bg-background">
+                  <option value="kecil">Kecil (1-2 kg)</option>
+                  <option value="sedang">Sedang (3-5 kg)</option>
+                  <option value="besar">Besar (5+ kg)</option>
+                </select>
               </div>
               {!user?.wilayah_id && (
                 <div>
