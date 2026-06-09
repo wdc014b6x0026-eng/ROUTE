@@ -1,4 +1,5 @@
 import supabase from '../config/supabase.js';
+import { sendEmail, emailTemplates } from '../utils/sendEmail.js';
 
 // GET semua jadwal tetap
 export const getAllJadwalTetap = async (req, res) => {
@@ -88,19 +89,43 @@ export const createJadwalTetap = async (req, res) => {
     const { data, error } = await supabase
       .from('jadwal_tetap')
       .insert([{ wilayah_id, petugas_id, hari, jam_mulai, jam_selesai }])
-      .select();
+      .select(`
+        *,
+        wilayah (id, nama_wilayah, kecamatan, kota)
+      `);
 
     if (error) throw error;
 
-    res.status(201).json({
-      status: 'success',
-      data: data[0]
-    });
+    // Kirim email ke semua warga di wilayah yang sama
+    const wilayahNama = data[0]?.wilayah?.nama_wilayah;
+
+    if (wilayah_id) {
+      const { data: wargaList } = await supabase
+        .from('users')
+        .select('nama, email')
+        .eq('wilayah_id', wilayah_id)
+        .eq('role', 'warga');
+
+      if (wargaList && wargaList.length > 0) {
+        for (const warga of wargaList) {
+          if (warga.email) {
+            const template = emailTemplates.jadwalTetapBaru(
+              warga.nama,
+              hari,
+              jam_mulai,
+              jam_selesai,
+              wilayahNama
+            );
+            await sendEmail({ to: warga.email, ...template });
+          }
+        }
+        console.log(`Email jadwal tetap dikirim ke ${wargaList.length} warga`);
+      }
+    }
+
+    res.status(201).json({ status: 'success', data: data[0] });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 

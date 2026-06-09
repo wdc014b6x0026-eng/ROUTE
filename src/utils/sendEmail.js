@@ -21,7 +21,7 @@ export const emailTemplates = {
     subject: 'Request Pengangkutan Berhasil Dibuat',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #ffffff; padding: 20px; text-align: center;">
+        <div style="background: #ffffff; padding: 20px; text-align: center;border-bottom:2px solid #16a34a;">
             <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
                 alt="ROUTE" style="height: 50px; width: auto;" />
             </div>
@@ -56,7 +56,7 @@ export const emailTemplates = {
     subject: `Status Request Diperbarui: ${status}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #ffffff; padding: 20px; text-align: center;">
+        <div style="background: #ffffff; padding: 20px; text-align: center;border-bottom:2px solid #16a34a;">
             <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
                 alt="ROUTE" style="height: 50px; width: auto;" />
             </div>
@@ -78,7 +78,7 @@ export const emailTemplates = {
     subject: 'Pengingat Jadwal Pengangkutan Sampah',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #ffffff; padding: 20px; text-align: center;">
+        <div style="background: #ffffff; padding: 20px; text-align: center;border-bottom:2px solid #16a34a;">
             <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
                 alt="ROUTE" style="height: 50px; width: auto;" />
             </div>
@@ -108,4 +108,40 @@ export const emailTemplates = {
       </div>
     `,
   }),
+
+  jadwalTetapBaru: (userName, hari, jamMulai, jamSelesai, wilayah) => ({
+  subject: 'Jadwal Pengangkutan Sampah Wilayah Kamu',
+  html: `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+      <div style="background:#ffffff;padding:16px;text-align:center;border-bottom:2px solid #16a34a;">
+        <img src="https://raw.githubusercontent.com/wdc014b6x0026-eng/ROUTE/frontend/public/logo-full.png" 
+          alt="ROUTE" style="height:50px;width:auto;" />
+      </div>
+      <div style="padding:30px;background:#f9fafb;">
+        <h2>Jadwal Pengangkutan Baru</h2>
+        <p>Halo <strong>${userName}</strong>,</p>
+        <p>Jadwal pengangkutan sampah untuk wilayah kamu telah ditetapkan:</p>
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+          <tr style="background:#e5e7eb;">
+            <td style="padding:10px;border:1px solid #d1d5db;"><strong>Wilayah</strong></td>
+            <td style="padding:10px;border:1px solid #d1d5db;">${wilayah}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border:1px solid #d1d5db;"><strong>Hari</strong></td>
+            <td style="padding:10px;border:1px solid #d1d5db;capitalize">${hari}</td>
+          </tr>
+          <tr style="background:#e5e7eb;">
+            <td style="padding:10px;border:1px solid #d1d5db;"><strong>Jam</strong></td>
+            <td style="padding:10px;border:1px solid #d1d5db;">${jamMulai} - ${jamSelesai}</td>
+          </tr>
+        </table>
+        <p>Pastikan sampah sudah dipilah sebelum jadwal pengangkutan ya!</p>
+      </div>
+      <div style="padding:20px;text-align:center;color:#6b7280;font-size:12px;">
+        <p>© 2026 ROUTE — Routing & Operational Updates for Trash Execution</p>
+      </div>
+    </div>
+  `,
+}),
+
 };
