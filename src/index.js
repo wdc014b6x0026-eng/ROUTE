@@ -10,6 +10,7 @@ import requestRoutes from './routes/request.js';
 import riwayatRoutes from './routes/riwayat.js';
 import artikelRoutes from './routes/artikel.js';
 import pengumumanRoutes from './routes/pengumuman.js';
+import { startReminderScheduler } from './jobs/reminderScheduler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,6 +66,7 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ status: 'error', message: err.message ?? 'Internal server error' });
 });
 
+startReminderScheduler();
 app.listen(PORT, () => {
-  console.log(`✅ ROUTE API running on http://localhost:${PORT}`);
+  console.log(`ROUTE API running on http://localhost:${PORT}`);
 });
