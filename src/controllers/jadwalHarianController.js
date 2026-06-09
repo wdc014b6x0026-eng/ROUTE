@@ -160,3 +160,31 @@ export const deleteJadwalHarian = async (req, res) => {
     });
   }
 };
+
+export const getJadwalByPetugas = async (req, res) => {
+  try {
+    const petugasId = req.user.id;
+    
+    const hariIni = new Date().toLocaleDateString('id-ID', { weekday: 'long' }).toLowerCase();
+    const hariMap = {
+      'senin': 'senin', 'selasa': 'selasa', 'rabu': 'rabu',
+      'kamis': 'kamis', 'jumat': 'jumat', 'sabtu': 'sabtu', 'minggu': 'minggu'
+    };
+    const hari = hariMap[hariIni] ?? hariIni;
+
+    const { data, error } = await supabase
+      .from('jadwal_tetap')
+      .select(`
+        *,
+        wilayah (id, nama_wilayah, kecamatan, kota)
+      `)
+      .eq('petugas_id', petugasId)
+      .eq('is_active', true)
+      .eq('hari', hari);
+
+    if (error) throw error;
+    res.json({ status: 'success', data });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
