@@ -69,6 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: fromApiRole(data.user.role),
       address: data.user.alamat,
       wilayah_id: data.user.wilayah_id,
+      no_telepon: data.user.no_telepon,
+      lat: data.user.lat,
+      lng: data.user.lng,
     };
     persist(u, data.token);
     return u;
@@ -77,17 +80,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (
     name: string, email: string, password: string, role: Role,
     address?: string, no_telepon?: string, wilayah_id?: string,
-    _lat?: number, _lng?: number
+    lat?: number, lng?: number
   ): Promise<User> => {
-    const data = await apiFetch<any>("/auth/register", {
+    await apiFetch<any>("/auth/register", {
       method: "POST",
       body: JSON.stringify({
         nama: name, email, password,
         role: toApiRole(role),
         no_telepon, alamat: address, wilayah_id,
+        lat, lng,
       }),
     });
-    // After register, log in to get token
     return login(email, password);
   };
 
