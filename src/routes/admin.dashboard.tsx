@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, PageHeader, StatCard } from "@/components/app-layout";
-import { pickupTrend, requestTrend } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
 import { apiFetch, type ApiUser, type ApiRequest, type ApiJadwalHarian } from "@/lib/api";
 import { Users, Truck, Calendar, ClipboardList, AlertTriangle, Activity, Loader2 } from "lucide-react";
@@ -8,31 +7,63 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 
 export const Route = createFileRoute("/admin/dashboard")({ component: Page });
 
+function buildPickupTrend(jobs: ApiJadwalHarian[]) {
+  const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const counts: Record<string, { completed: number; failed: number }> = {};
+  DAY_LABELS.forEach(d => { counts[d] = { completed: 0, failed: 0 }; });
+
+  jobs.forEach(j => {
+    if (!j.tanggal) return;
+    const day = DAY_LABELS[new Date(j.tanggal).getDay()];
+    if (j.status === "sudah_diambil") counts[day].completed++;
+    else if (j.status === "dibatalkan") counts[day].failed++;
+  });
+
+  return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => ({ day: d, ...counts[d] }));
+}
+
+function buildRequestTrend(requests: ApiRequest[]) {
+  const weeks: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0 };
+  requests.forEach(r => {
+    const day = new Date(r.created_at).getDate();
+    const week = day <= 7 ? "W1" : day <= 14 ? "W2" : day <= 21 ? "W3" : "W4";
+    weeks[week]++;
+  });
+  return Object.entries(weeks).map(([week, requests]) => ({ week, requests }));
+}
+
 function Page() {
   const [users, setUsers] = useState<ApiUser[]>([]);
   const [requests, setRequests] = useState<ApiRequest[]>([]);
   const [todayJobs, setTodayJobs] = useState<ApiJadwalHarian[]>([]);
+  const [allJobs, setAllJobs] = useState<ApiJadwalHarian[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
+    // Build a week range for trend data: past 7 days
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
     Promise.all([
       apiFetch<ApiUser[]>("/users").catch(() => [] as ApiUser[]),
       apiFetch<ApiRequest[]>("/request").catch(() => [] as ApiRequest[]),
       apiFetch<ApiJadwalHarian[]>(`/jadwal-harian/tanggal/${today}`).catch(() => [] as ApiJadwalHarian[]),
-    ]).then(([u, r, j]) => {
+      apiFetch<ApiJadwalHarian[]>(`/jadwal-harian/range?from=${weekAgo}&to=${today}`).catch(() => [] as ApiJadwalHarian[]),
+    ]).then(([u, r, j, allJ]) => {
       setUsers(u);
       setRequests(r);
       setTodayJobs(j);
+      setAllJobs(allJ.length > 0 ? allJ : j); // fallback to today if range endpoint doesn't exist yet
     }).finally(() => setLoading(false));
   }, []);
 
   const transporters = users.filter(u => u.role === "petugas");
   const pendingRequests = requests.filter(r => r.status === "menunggu");
-  const completedToday = todayJobs.filter(j => j.status === "sudah_diambil");
   const failedToday = todayJobs.filter(j => j.status === "dibatalkan");
 
-  // Recent activity derived from requests
+  const pickupTrend = buildPickupTrend(allJobs);
+  const requestTrend = buildRequestTrend(requests);
+
   const recentActivity = requests.slice(0, 5).map(r => ({
     t: new Date(r.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
     msg: `Request: ${r.jenis_sampah} (${r.estimasi_jumlah}) — ${r.users?.nama ?? "Unknown"}`,

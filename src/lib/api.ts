@@ -103,7 +103,7 @@ export const toApiRequestStatus = (s: string): string => {
 // ─── API helpers ─────────────────────────────────────────────────
 export interface ApiUser {
   id: string; nama: string; email: string; role: string;
-  no_telepon?: string; alamat?: string; wilayah_id?: string; created_at?: string;
+  no_telepon?: string; alamat?: string; wilayah_id?: string; created_at?: string; lat?: number; lng?: number;  
 }
 
 export interface ApiWilayah {
