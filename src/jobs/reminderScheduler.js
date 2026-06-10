@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import supabase from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 import { sendEmail, emailTemplates } from '../utils/sendEmail.js';
 
 const HARI_MAP = {
@@ -13,23 +13,17 @@ const HARI_MAP = {
 };
 
 export const startReminderScheduler = () => {
-  // Jalankan setiap hari jam 18.00
   cron.schedule('0 18 * * *', async () => {
     console.log('Running reminder scheduler...');
 
     try {
-      // Cek hari besok
       const besok = new Date();
       besok.setDate(besok.getDate() + 1);
       const hariBesok = HARI_MAP[besok.getDay()];
 
-      // Ambil semua jadwal tetap yang aktif di hari besok
-      const { data: jadwalList, error } = await supabase
+      const { data: jadwalList, error } = await supabaseAdmin
         .from('jadwal_tetap')
-        .select(`
-          *,
-          wilayah (id, nama_wilayah, kecamatan, kota)
-        `)
+        .select(`*, wilayah (id, nama_wilayah, kecamatan, kota)`)
         .eq('hari', hariBesok)
         .eq('is_active', true);
 
@@ -46,8 +40,7 @@ export const startReminderScheduler = () => {
         const wilayahId = jadwal.wilayah_id;
         const wilayahNama = jadwal.wilayah?.nama_wilayah;
 
-        // Ambil semua warga di wilayah ini
-        const { data: wargaList } = await supabase
+        const { data: wargaList } = await supabaseAdmin
           .from('users')
           .select('nama, email')
           .eq('wilayah_id', wilayahId)
@@ -57,14 +50,12 @@ export const startReminderScheduler = () => {
 
         for (const warga of wargaList) {
           if (!warga.email) continue;
-
           const template = emailTemplates.jadwalReminder(
             warga.nama,
             hariBesok,
             jadwal.jam_mulai,
             wilayahNama
           );
-
           await sendEmail({ to: warga.email, ...template });
           totalEmail++;
         }
