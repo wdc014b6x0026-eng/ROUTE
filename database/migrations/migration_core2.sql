@@ -143,7 +143,7 @@ CREATE POLICY "riwayat: admin bisa delete"
 
 CREATE TABLE IF NOT EXISTS artikel_edukasi (
   id              UUID          PRIMARY KEY DEFAULT uuid_generate_v4(),
-  penulis_id      UUID          NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  penulis_id      UUID          REFERENCES users(id) ON DELETE SET NULL,
   judul           VARCHAR(255)  NOT NULL,
   konten          TEXT          NOT NULL,
   kategori        VARCHAR(100),
@@ -199,7 +199,7 @@ CREATE TYPE tipe_pengumuman_enum AS ENUM (
 
 CREATE TABLE IF NOT EXISTS pengumuman (
   id              UUID                    PRIMARY KEY DEFAULT uuid_generate_v4(),
-  admin_id        UUID                    NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  admin_id        UUID                    REFERENCES users(id) ON DELETE SET NULL,
   judul           VARCHAR(255)            NOT NULL,
   isi             TEXT                    NOT NULL,
   tipe            TEXT                    NOT NULL DEFAULT 'umum',  -- free text to match frontend TYPES array
@@ -233,3 +233,5 @@ CREATE POLICY "pengumuman: admin bisa tulis"
   TO authenticated
   USING     (get_user_role() = 'admin')
   WITH CHECK (get_user_role() = 'admin');
+
+  

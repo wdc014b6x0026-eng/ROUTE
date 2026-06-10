@@ -1,9 +1,14 @@
-import supabase from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
+
+const HARI_MAP = {
+  0: 'minggu', 1: 'senin', 2: 'selasa', 3: 'rabu',
+  4: 'kamis', 5: 'jumat', 6: 'sabtu',
+};
 
 // GET semua jadwal harian
 export const getAllJadwalHarian = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('jadwal_harian')
       .select(`
         *,
@@ -16,16 +21,9 @@ export const getAllJadwalHarian = async (req, res) => {
       .order('tanggal', { ascending: false });
 
     if (error) throw error;
-
-    res.json({
-      status: 'success',
-      data: data
-    });
+    res.json({ status: 'success', data });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
@@ -33,7 +31,7 @@ export const getAllJadwalHarian = async (req, res) => {
 export const getJadwalHarianById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('jadwal_harian')
       .select(`
         *,
@@ -47,16 +45,9 @@ export const getJadwalHarianById = async (req, res) => {
       .single();
 
     if (error) throw error;
-
-    res.json({
-      status: 'success',
-      data: data
-    });
+    res.json({ status: 'success', data });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
@@ -64,7 +55,7 @@ export const getJadwalHarianById = async (req, res) => {
 export const getJadwalHarianByTanggal = async (req, res) => {
   try {
     const { tanggal } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('jadwal_harian')
       .select(`
         *,
@@ -77,16 +68,38 @@ export const getJadwalHarianByTanggal = async (req, res) => {
       .eq('tanggal', tanggal);
 
     if (error) throw error;
-
-    res.json({
-      status: 'success',
-      data: data
-    });
+    res.json({ status: 'success', data });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// GET jadwal harian dalam range tanggal (untuk admin dashboard chart)
+// Query: GET /jadwal-harian/range?from=YYYY-MM-DD&to=YYYY-MM-DD
+export const getJadwalHarianByRange = async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    if (!from || !to) {
+      return res.status(400).json({ status: 'error', message: 'Query params "from" dan "to" wajib diisi (YYYY-MM-DD)' });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('jadwal_harian')
+      .select(`
+        id, tanggal, status,
+        jadwal_tetap (
+          id, hari, jam_mulai, jam_selesai,
+          wilayah (id, nama_wilayah, kecamatan, kota)
+        )
+      `)
+      .gte('tanggal', from)
+      .lte('tanggal', to)
+      .order('tanggal', { ascending: true });
+
+    if (error) throw error;
+    res.json({ status: 'success', data });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
@@ -94,22 +107,15 @@ export const getJadwalHarianByTanggal = async (req, res) => {
 export const createJadwalHarian = async (req, res) => {
   try {
     const { jadwal_tetap_id, petugas_id, tanggal } = req.body;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('jadwal_harian')
       .insert([{ jadwal_tetap_id, petugas_id, tanggal }])
       .select();
 
     if (error) throw error;
-
-    res.status(201).json({
-      status: 'success',
-      data: data[0]
-    });
+    res.status(201).json({ status: 'success', data: data[0] });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
@@ -118,23 +124,16 @@ export const updateStatusJadwalHarian = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, catatan } = req.body;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('jadwal_harian')
       .update({ status, catatan })
       .eq('id', id)
       .select();
 
     if (error) throw error;
-
-    res.json({
-      status: 'success',
-      data: data[0]
-    });
+    res.json({ status: 'success', data: data[0] });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
@@ -142,37 +141,26 @@ export const updateStatusJadwalHarian = async (req, res) => {
 export const deleteJadwalHarian = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('jadwal_harian')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
-
-    res.json({
-      status: 'success',
-      message: 'Jadwal harian berhasil dihapus'
-    });
+    res.json({ status: 'success', message: 'Jadwal harian berhasil dihapus' });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
+// GET jadwal hari ini untuk petugas yang sedang login
 export const getJadwalByPetugas = async (req, res) => {
   try {
     const petugasId = req.user.id;
-    
-    const hariIni = new Date().toLocaleDateString('id-ID', { weekday: 'long' }).toLowerCase();
-    const hariMap = {
-      'senin': 'senin', 'selasa': 'selasa', 'rabu': 'rabu',
-      'kamis': 'kamis', 'jumat': 'jumat', 'sabtu': 'sabtu', 'minggu': 'minggu'
-    };
-    const hari = hariMap[hariIni] ?? hariIni;
 
-    const { data, error } = await supabase
+    const hari = HARI_MAP[new Date().getDay()];
+
+    const { data, error } = await supabaseAdmin
       .from('jadwal_tetap')
       .select(`
         *,
@@ -181,6 +169,32 @@ export const getJadwalByPetugas = async (req, res) => {
       .eq('petugas_id', petugasId)
       .eq('is_active', true)
       .eq('hari', hari);
+
+    if (error) throw error;
+    res.json({ status: 'success', data });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+// GET riwayat jadwal harian untuk petugas yang sedang login
+// Mengembalikan semua jadwal yang sudah selesai atau dibatalkan, urut terbaru dulu
+export const getHistoryByPetugas = async (req, res) => {
+  try {
+    const petugasId = req.user.id;
+
+    const { data, error } = await supabaseAdmin
+      .from('jadwal_harian')
+      .select(`
+        id, tanggal, status, catatan,
+        jadwal_tetap (
+          id, hari, jam_mulai, jam_selesai,
+          wilayah (id, nama_wilayah, kecamatan, kota)
+        )
+      `)
+      .eq('petugas_id', petugasId)
+      .in('status', ['sudah_diambil', 'dibatalkan'])
+      .order('tanggal', { ascending: false });
 
     if (error) throw error;
     res.json({ status: 'success', data });

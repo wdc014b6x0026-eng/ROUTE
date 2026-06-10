@@ -1,9 +1,9 @@
-import supabase from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 
 // GET semua users
 export const getAllUsers = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('users')
       .select('id, nama, email, role, no_telepon, alamat, wilayah_id, lat, lng, created_at');
 
@@ -18,7 +18,7 @@ export const getAllUsers = async (req, res) => {
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('users')
       .select('id, nama, email, role, no_telepon, alamat, wilayah_id, lat, lng, created_at')
       .eq('id', id)
@@ -35,7 +35,7 @@ export const getUserById = async (req, res) => {
 export const getUsersByWilayah = async (req, res) => {
   try {
     const { wilayah_id } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('users')
       .select('id, nama, email, role, no_telepon, alamat, wilayah_id, lat, lng')
       .eq('wilayah_id', wilayah_id)
@@ -53,7 +53,7 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const { nama, no_telepon, alamat, wilayah_id, lat, lng } = req.body;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('users')
       .update({ nama, no_telepon, alamat, wilayah_id, lat, lng })
       .eq('id', id)
@@ -70,7 +70,7 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('users')
       .delete()
       .eq('id', id);

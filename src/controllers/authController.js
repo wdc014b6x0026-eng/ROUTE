@@ -2,7 +2,7 @@ import { supabase, supabaseAdmin } from '../config/supabase.js';
 
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
 export const register = async (req, res) => {
-  const { nama, email, password, role, no_telepon, alamat, wilayah_id } = req.body;
+  const { nama, email, password, role, no_telepon, alamat, wilayah_id, lat, lng } = req.body;
 
   // Validasi field wajib
   if (!nama || !email || !password) {
@@ -44,6 +44,8 @@ export const register = async (req, res) => {
         no_telepon: no_telepon || null,
         alamat: alamat || null,
         wilayah_id: wilayah_id || null,
+        lat: lat || null,
+        lng: lng || null,
       }])
       .select('id, nama, email, role, wilayah_id')
       .single();
@@ -60,7 +62,12 @@ export const register = async (req, res) => {
       data: userData,
     });
   } catch (error) {
-    res.status(400).json({ status: 'error', message: error.message });
+      console.error('REGISTER ERROR:', error);
+
+  res.status(400).json({
+    status: 'error',
+    message: error.message
+  });
   }
 };
 
@@ -88,7 +95,7 @@ export const login = async (req, res) => {
     // Pakai supabaseAdmin supaya tidak bergantung pada RLS context di server
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, nama, email, role, wilayah_id, no_telepon, alamat')
+      .select('id, nama, email, role, wilayah_id, no_telepon, alamat, lat, lng')
       .eq('id', authData.user.id)
       .single();
 
