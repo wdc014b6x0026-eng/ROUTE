@@ -1,8 +1,8 @@
-import supabase from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 
 export const getAllRiwayat = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('riwayat_pengangkutan')
       .select(`
         *,
@@ -26,7 +26,7 @@ export const getAllRiwayat = async (req, res) => {
 export const getRiwayatById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('riwayat_pengangkutan')
       .select(`
         *,
@@ -51,7 +51,7 @@ export const getRiwayatById = async (req, res) => {
 export const getRiwayatByUser = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('riwayat_pengangkutan')
       .select(`
         *,
@@ -76,7 +76,7 @@ export const createRiwayat = async (req, res) => {
   try {
     const { user_id, jadwal_harian_id, request_id, tipe, catatan_petugas } = req.body;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('riwayat_pengangkutan')
       .insert([{ user_id, jadwal_harian_id, request_id, tipe, catatan_petugas }])
       .select();
@@ -91,7 +91,7 @@ export const createRiwayat = async (req, res) => {
 export const deleteRiwayat = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('riwayat_pengangkutan')
       .delete()
       .eq('id', id);

@@ -1,6 +1,7 @@
-import supabase from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 import { sendEmail, emailTemplates } from '../utils/sendEmail.js';
 
+// status: DB value → frontend label
 const toFrontendStatus = (status) => {
   const map = {
     pending: 'menunggu',
@@ -12,6 +13,7 @@ const toFrontendStatus = (status) => {
   return map[status] ?? status;
 };
 
+// status: frontend label → DB value
 const toDbStatus = (status) => {
   const map = {
     menunggu: 'pending',
@@ -25,7 +27,7 @@ const toDbStatus = (status) => {
 
 export const getAllRequest = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('request_pengangkutan')
       .select(`
         *,
@@ -47,7 +49,7 @@ export const getAllRequest = async (req, res) => {
 export const getRequestById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('request_pengangkutan')
       .select(`
         *,
@@ -59,7 +61,6 @@ export const getRequestById = async (req, res) => {
       .single();
 
     if (error) throw error;
-
     res.json({ status: 'success', data: { ...data, status: toFrontendStatus(data.status) } });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -69,7 +70,7 @@ export const getRequestById = async (req, res) => {
 export const getRequestByUser = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('request_pengangkutan')
       .select(`
         *,
@@ -93,7 +94,7 @@ export const createRequest = async (req, res) => {
     const { wilayah_id, jenis_sampah, estimasi_jumlah, catatan } = req.body;
     const user_id = req.user.id;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('request_pengangkutan')
       .insert([{ user_id, wilayah_id, jenis_sampah, estimasi_jumlah, catatan }])
       .select();
@@ -101,13 +102,12 @@ export const createRequest = async (req, res) => {
     if (error) throw error;
 
     // Kirim email notifikasi ke user
-    const { data: userData } = await supabase
+    const { data: userData } = await supabaseAdmin
       .from('users')
       .select('nama, email')
       .eq('id', user_id)
       .single();
-    
-    console.log('userData email check:', userData);  
+
     if (userData?.email) {
       const template = emailTemplates.requestCreated(userData.nama, jenis_sampah, estimasi_jumlah);
       await sendEmail({ to: userData.email, ...template });
@@ -123,22 +123,23 @@ export const updateStatusRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { status: frontendStatus, alasan_penolakan, jadwal_harian_id } = req.body;
-    const status = toDbStatus(frontendStatus);
+    // Convert incoming frontend label → DB value before writing
+    const dbStatus = toDbStatus(frontendStatus);
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('request_pengangkutan')
-      .update({ status, alasan_penolakan, jadwal_harian_id })
+      .update({ status: dbStatus, alasan_penolakan, jadwal_harian_id })
       .eq('id', id)
       .select(`*, users (id, nama, email)`);
 
     if (error) throw error;
 
-    // Kirim email notifikasi ke user
+    // Kirim email — data[0].status is the DB value returned after update
     const userData = data[0]?.users;
     if (userData?.email) {
       const template = emailTemplates.requestStatusUpdated(
         userData.nama,
-        toFrontendStatus(status),
+        toFrontendStatus(data[0].status), // DB value → readable label for email
         alasan_penolakan
       );
       await sendEmail({ to: userData.email, ...template });
@@ -153,13 +154,12 @@ export const updateStatusRequest = async (req, res) => {
 export const deleteRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('request_pengangkutan')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
-
     res.json({ status: 'success', message: 'Request berhasil dihapus' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });

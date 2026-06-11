@@ -44,9 +44,9 @@ CREATE TABLE IF NOT EXISTS users (
   alamat        TEXT,
   wilayah_id    UUID          REFERENCES wilayah(id) ON DELETE SET NULL,
   created_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-  lat  DOUBLE PRECISION,
-  lng  DOUBLE PRECISION
+  updated_at    TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  lat           DOUBLE PRECISION,
+  lng           DOUBLE PRECISION
 );
 
 -- Index untuk filter user berdasarkan role dan wilayah
@@ -65,6 +65,41 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER trg_users_updated_at
   BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+
+-- =============================================================
+-- AUTO-CREATE PROFILE ON SIGN-UP
+-- Setiap kali Supabase Auth membuat user baru (via signUp atau
+-- admin.createUser), trigger ini otomatis menyisipkan baris ke
+-- tabel public.users — sehingga tidak perlu insert manual.
+--
+-- Catatan: kolom nama diambil dari raw_user_meta_data.nama jika
+-- tersedia (dikirim lewat options.data saat signUp), fallback
+-- ke bagian email sebelum '@'.
+-- =============================================================
+CREATE OR REPLACE FUNCTION handle_new_auth_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, nama, email, role, no_telepon, alamat, wilayah_id, lat, lng)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'nama', split_part(NEW.email, '@', 1)),
+    NEW.email,
+    COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'warga'),
+    NEW.raw_user_meta_data->>'no_telepon',
+    NEW.raw_user_meta_data->>'alamat',
+    (NEW.raw_user_meta_data->>'wilayah_id')::UUID,
+    (NEW.raw_user_meta_data->>'lat')::DOUBLE PRECISION,
+    (NEW.raw_user_meta_data->>'lng')::DOUBLE PRECISION
+  )
+  ON CONFLICT (id) DO NOTHING;  -- idempotent: jangan error jika sudah ada
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER trg_on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_auth_user();
 
 
 -- =============================================================

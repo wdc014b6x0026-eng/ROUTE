@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 
 /**
  * Middleware: verifikasi Bearer token dari Supabase Auth.
@@ -27,9 +27,9 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    // Ambil profil dari tabel users
-    // Pakai supabase biasa (bukan admin), RLS sudah allow user baca profilnya sendiri
-    const { data: userData, error: userError } = await supabase
+    // Ambil profil dari tabel users pakai supabaseAdmin (service role) agar
+    // tidak bergantung pada RLS session context di sisi server.
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, nama, email, role, wilayah_id')
       .eq('id', data.user.id)

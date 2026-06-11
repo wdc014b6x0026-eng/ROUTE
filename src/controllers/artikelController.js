@@ -1,8 +1,8 @@
-import supabase from '../config/supabase.js';
+import { supabaseAdmin } from '../config/supabase.js';
 
 export const getAllArtikel = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('artikel_edukasi')
       .select(`*, users (id, nama)`)
       .order('created_at', { ascending: false });
@@ -17,7 +17,7 @@ export const getAllArtikel = async (req, res) => {
 export const getArtikelById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('artikel_edukasi')
       .select(`*, users (id, nama)`)
       .eq('id', id)
@@ -32,7 +32,7 @@ export const getArtikelById = async (req, res) => {
 
 export const getArtikelPublished = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('artikel_edukasi')
       .select(`*, users (id, nama)`)
       .eq('is_published', true)
@@ -51,7 +51,7 @@ export const createArtikel = async (req, res) => {
     const penulis_id = req.user.id;
     const published_at = is_published ? new Date().toISOString() : null;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('artikel_edukasi')
       .insert([{ penulis_id, judul, konten, kategori, thumbnail_url, is_published: is_published || false, published_at }])
       .select();
@@ -69,7 +69,7 @@ export const updateArtikel = async (req, res) => {
     const { judul, konten, kategori, thumbnail_url, is_published } = req.body;
     const published_at = is_published ? new Date().toISOString() : null;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('artikel_edukasi')
       .update({ judul, konten, kategori, thumbnail_url, is_published, published_at })
       .eq('id', id)
@@ -85,7 +85,7 @@ export const updateArtikel = async (req, res) => {
 export const deleteArtikel = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('artikel_edukasi')
       .delete()
       .eq('id', id);
