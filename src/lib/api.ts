@@ -55,13 +55,14 @@ export const fromApiRole = (r: string): Role =>
   r === "warga" ? "resident" : r === "petugas" ? "transporter" : "admin";
 
 // ─── Status mapping ───────────────────────────────────────────────
-export type ApiPickupStatus = "terjadwal" | "dalam_perjalanan" | "sudah_diambil" | "dibatalkan";
+export type ApiPickupStatus = "terjadwal" | "dalam_perjalanan" | "tiba" | "sudah_diambil" | "dibatalkan";
 export type ApiRequestStatus = "menunggu" | "diterima" | "dijadwalkan" | "selesai" | "ditolak";
 
 export const fromApiStatus = (s: ApiPickupStatus): string => {
   const m: Record<ApiPickupStatus, string> = {
     terjadwal: "scheduled",
     dalam_perjalanan: "on_the_way",
+    tiba: "arrived",
     sudah_diambil: "picked_up",
     dibatalkan: "failed",
   };
@@ -72,6 +73,7 @@ export const toApiStatus = (s: string): ApiPickupStatus => {
   const m: Record<string, ApiPickupStatus> = {
     scheduled: "terjadwal",
     on_the_way: "dalam_perjalanan",
+    arrived: "tiba",
     picked_up: "sudah_diambil",
     failed: "dibatalkan",
   };
@@ -103,7 +105,7 @@ export const toApiRequestStatus = (s: string): string => {
 // ─── API helpers ─────────────────────────────────────────────────
 export interface ApiUser {
   id: string; nama: string; email: string; role: string;
-  no_telepon?: string; alamat?: string; wilayah_id?: string; created_at?: string; lat?: number; lng?: number;  
+  no_telepon?: string; alamat?: string; wilayah_id?: string; created_at?: string; lat?: number; lng?: number;
 }
 
 export interface ApiWilayah {
