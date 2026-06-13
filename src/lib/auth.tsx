@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createClient } from "@supabase/supabase-js";
 import type { Role } from "./mock-data";
 import { apiFetch, toApiRole, fromApiRole } from "./api";
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 export interface User {
   id: string;
@@ -32,18 +38,61 @@ const Ctx = createContext<AuthCtx | null>(null);
 const USER_KEY = "route_user";
 const TOKEN_KEY = "route_token";
 
+function mapUser(raw: any): User {
+  return {
+    id: raw.id,
+    name: raw.nama,
+    email: raw.email,
+    role: fromApiRole(raw.role),
+    address: raw.alamat,
+    wilayah_id: raw.wilayah_id,
+    no_telepon: raw.no_telepon,
+    lat: raw.lat,
+    lng: raw.lng,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+  const restoreSession = async () => {
     if (typeof window === "undefined") { setLoading(false); return; }
+
+    const token = localStorage.getItem(TOKEN_KEY);
     const raw = localStorage.getItem(USER_KEY);
-    if (raw) {
-      try { setUser(JSON.parse(raw)); } catch { /* ignore */ }
+
+    if (!token || !raw) { setLoading(false); return; }
+
+    try {
+      const profile = await apiFetch<any>("/auth/me");
+      setUser(mapUser(profile));
+      localStorage.setItem(USER_KEY, JSON.stringify(mapUser(profile)));
+    } catch {
+      // Access token expired, coba refresh via Supabase
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error || !data.session) throw new Error("No session");
+
+        localStorage.setItem(TOKEN_KEY, data.session.access_token);
+
+        const profile = await apiFetch<any>("/auth/me");
+        const u = mapUser(profile);
+        setUser(u);
+        localStorage.setItem(USER_KEY, JSON.stringify(u));
+      } catch {
+        localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        setUser(null);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
+
+  restoreSession();
+}, []);
 
   const persist = (u: User | null, token?: string) => {
     setUser(u);
@@ -62,17 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
-    const u: User = {
-      id: data.user.id,
-      name: data.user.nama,
-      email: data.user.email,
-      role: fromApiRole(data.user.role),
-      address: data.user.alamat,
-      wilayah_id: data.user.wilayah_id,
-      no_telepon: data.user.no_telepon,
-      lat: data.user.lat,
-      lng: data.user.lng,
-    };
+    const u = mapUser(data.user);
     persist(u, data.token);
     return u;
   };
@@ -96,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try { await apiFetch("/auth/logout", { method: "POST" }); } catch { /* ignore */ }
+    await supabase.auth.signOut();
     persist(null);
   };
 

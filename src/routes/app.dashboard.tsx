@@ -2,10 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppLayout, PageHeader, StatCard, StatusBadge } from "@/components/app-layout";
 import { useEffect, useState } from "react";
 import { Calendar, Truck, PlusCircle, Leaf, ArrowRight, Recycle, Loader2 } from "lucide-react";
-import { apiFetch, fromApiRequestStatus, fromApiStatus, type ApiJadwalTetap, type ApiRequest } from "@/lib/api";
+import { apiFetch, fromApiRequestStatus, fromApiStatus, type ApiJadwalTetap, type ApiJadwalHarian, type ApiRequest } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-// Inline type for announcements from API
 interface ApiPengumuman {
   id: string; judul: string; isi: string; tipe: string;
   is_active: boolean; created_at: string;
@@ -18,6 +17,7 @@ function Page() {
   const [schedules, setSchedules] = useState<ApiJadwalTetap[]>([]);
   const [announcements, setAnnouncements] = useState<ApiPengumuman[]>([]);
   const [requests, setRequests] = useState<ApiRequest[]>([]);
+  const [todayStatus, setTodayStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +34,12 @@ function Page() {
           const sch = await apiFetch<ApiJadwalTetap[]>(`/jadwal-tetap/wilayah/${user.wilayah_id}`)
             .catch(() => [] as ApiJadwalTetap[]);
           setSchedules(sch);
+
+          const today = new Date().toISOString().split("T")[0];
+          const jadwalHarian = await apiFetch<ApiJadwalHarian[]>(`/jadwal-harian/tanggal/${today}`)
+            .catch(() => [] as ApiJadwalHarian[]);
+          const match = jadwalHarian.find(j => j.jadwal_tetap?.wilayah?.id === user.wilayah_id);
+          setTodayStatus(match?.status ?? null);
         }
       } finally {
         setLoading(false);
@@ -45,6 +51,22 @@ function Page() {
   const DAY_MAP: Record<string, string> = {
     senin: "Monday", selasa: "Tuesday", rabu: "Wednesday", kamis: "Thursday",
     jumat: "Friday", sabtu: "Saturday", minggu: "Sunday",
+  };
+
+  const STATUS_LABEL: Record<string, string> = {
+    terjadwal:        "Scheduled",
+    dalam_perjalanan: "On the way",
+    tiba:             "Arrived",
+    sudah_diambil:    "Picked up",
+    dibatalkan:       "Failed",
+  };
+
+  const STATUS_ACCENT: Record<string, "primary" | "info" | "success" | "warning" | "destructive"> = {
+    terjadwal:        "info",
+    dalam_perjalanan: "info",
+    tiba:             "info",
+    sudah_diambil:    "success",
+    dibatalkan:       "warning",
   };
 
   const pendingCount = requests.filter(r => r.status === "menunggu").length;
@@ -64,10 +86,17 @@ function Page() {
             <StatCard
               label="Next Pickup"
               value={nextSchedule ? DAY_MAP[nextSchedule.hari?.toLowerCase()] ?? nextSchedule.hari : "—"}
-              icon={Calendar} accent="primary"
+              icon={Calendar}
+              accent="primary"
               hint={nextSchedule ? `${nextSchedule.jam_mulai?.slice(0, 5)}` : "No schedule yet"}
             />
-            <StatCard label="Pickup Status" value="Scheduled" icon={Truck} accent="info" />
+            <StatCard
+              label="Pickup Status"
+              value={todayStatus ? STATUS_LABEL[todayStatus] ?? todayStatus : "No pickup today"}
+              icon={Truck}
+              accent={todayStatus ? STATUS_ACCENT[todayStatus] ?? "info" : "primary"}
+              hint={todayStatus ? "Today's status" : "Check back on pickup day"}
+            />
             <StatCard label="Total Requests" value={requests.length} icon={Recycle} accent="success" hint="All time" />
             <StatCard label="Pending Requests" value={pendingCount} icon={PlusCircle} accent="warning" />
           </div>
@@ -113,7 +142,10 @@ function Page() {
                 <Leaf className="size-7 mb-3 opacity-80" />
                 <h3 className="font-display font-bold text-lg">Need extra pickup?</h3>
                 <p className="text-sm opacity-90 mt-1">Submit a request in 30 seconds.</p>
-                <Link to="/app/request" className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-background text-primary text-sm font-medium hover:opacity-90 transition">
+                <Link
+                  to="/app/request"
+                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-background text-primary text-sm font-medium hover:opacity-90 transition"
+                >
                   Request now <ArrowRight className="size-4" />
                 </Link>
               </div>

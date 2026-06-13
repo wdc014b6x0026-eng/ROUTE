@@ -51,13 +51,15 @@ function Page() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!user?.wilayah_id) {
+      setLoading(false);
+      return;
+    }
+
     const today = new Date().toISOString().split("T")[0];
     apiFetch<ApiJadwalHarian[]>(`/jadwal-harian/tanggal/${today}`)
       .then(list => {
-        const match =
-          list.find(j => j.jadwal_tetap?.wilayah?.id === user?.wilayah_id)
-          ?? list[0]
-          ?? null;
+        const match = list.find(j => j.jadwal_tetap?.wilayah?.id === user.wilayah_id) ?? null;
         setJadwal(match);
       })
       .catch(e => setError(e.message))

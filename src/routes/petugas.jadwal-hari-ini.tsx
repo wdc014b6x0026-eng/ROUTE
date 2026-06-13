@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppLayout, PageHeader, StatusBadge } from "@/components/app-layout";
 import { useEffect, useState, useCallback } from "react";
-import { MapPin, Loader2, RefreshCw } from "lucide-react";
+import { MapPin, Loader2, RefreshCw, Clock } from "lucide-react";
 import { apiFetch, fromApiStatus, type ApiJadwalHarian } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/petugas/jadwal-hari-ini")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -10,6 +11,20 @@ export const Route = createFileRoute("/petugas/jadwal-hari-ini")({
   }),
   component: Page,
 });
+
+const toMinutes = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+
+const getWindowState = (jamMulai?: string, jamSelesai?: string) => {
+  if (!jamMulai || !jamSelesai) return "active";
+  const now = new Date();
+  const current = now.getHours() * 60 + now.getMinutes();
+  if (current < toMinutes(jamMulai)) return "upcoming";
+  if (current >= toMinutes(jamSelesai)) return "expired";
+  return "active";
+};
 
 function Page() {
   const [jobs, setJobs] = useState<ApiJadwalHarian[]>([]);
@@ -27,10 +42,7 @@ function Page() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Refetch setiap kali t berubah (navigate balik dari status page)
-  useEffect(() => {
-    fetchJobs();
-  }, [fetchJobs, t]);
+  useEffect(() => { fetchJobs(); }, [fetchJobs, t]);
 
   if (loading) return (
     <AppLayout>
@@ -69,15 +81,40 @@ function Page() {
 
       <div className="grid md:grid-cols-2 gap-4">
         {jobs.map(j => {
-          // Hanya disable kalau sudah final (picked up atau dibatalkan)
-          // tiba & dalam_perjalanan masih bisa diupdate
-          const isDone = j.status === "sudah_diambil" || j.status === "dibatalkan";
+          const isFinal = j.status === "sudah_diambil" || j.status === "dibatalkan";
+          const window = getWindowState(j.jadwal_tetap?.jam_mulai, j.jadwal_tetap?.jam_selesai);
+          const isExpired = window === "expired";
+          const isUpcoming = window === "upcoming";
+
+          // Disable tombol jika: status final, jam belum mulai, atau jam sudah habis
+          const buttonDisabled = isFinal || isExpired || isUpcoming;
+
+          // Card transparan jika status final atau jam sudah habis
+          const isDimmed = isFinal || isExpired;
+
+          let buttonLabel = "Update Status";
+          if (isFinal) buttonLabel = "Completed";
+          else if (isExpired) buttonLabel = "Time's up";
+          else if (isUpcoming) buttonLabel = `Starts at ${j.jadwal_tetap?.jam_mulai?.slice(0, 5)}`;
+
           return (
-            <div key={j.id} className="bg-card border border-border rounded-2xl p-5 shadow-card hover:shadow-soft transition">
+            <div
+              key={j.id}
+              className={cn(
+                "bg-card border border-border rounded-2xl p-5 shadow-card transition",
+                isDimmed ? "opacity-50" : "hover:shadow-soft"
+              )}
+            >
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-xs font-medium text-muted-foreground">
+                  <div className={cn(
+                    "text-xs font-medium flex items-center gap-1",
+                    isExpired ? "text-destructive/70" : isUpcoming ? "text-warning" : "text-muted-foreground"
+                  )}>
+                    <Clock className="size-3" />
                     {j.jadwal_tetap?.jam_mulai?.slice(0, 5)} – {j.jadwal_tetap?.jam_selesai?.slice(0, 5)}
+                    {isExpired && " · Expired"}
+                    {isUpcoming && " · Upcoming"}
                   </div>
                   <div className="font-display font-bold text-lg mt-1">
                     {j.jadwal_tetap?.wilayah?.nama_wilayah ?? "Pickup"}
@@ -97,7 +134,7 @@ function Page() {
                 </div>
               </div>
               <button
-                disabled={isDone}
+                disabled={buttonDisabled}
                 onClick={() => navigate({
                   to: "/petugas/status",
                   search: {
@@ -110,7 +147,7 @@ function Page() {
                 })}
                 className="mt-4 w-full h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {isDone ? "Completed" : "Update Status"}
+                {buttonLabel}
               </button>
             </div>
           );
