@@ -5,6 +5,17 @@ const HARI_MAP = {
   4: 'kamis', 5: 'jumat', 6: 'sabtu',
 };
 
+const toMinutes = (timeStr) => {
+  const [h, m] = (timeStr ?? '').split(':').map(Number);
+  return h * 60 + m;
+};
+
+const isWithinScheduleWindow = (jamMulai, jamSelesai) => {
+  const now = new Date();
+  const current = now.getHours() * 60 + now.getMinutes();
+  return current >= toMinutes(jamMulai) && current < toMinutes(jamSelesai);
+};
+
 // GET semua jadwal harian
 export const getAllJadwalHarian = async (req, res) => {
   try {
@@ -75,7 +86,6 @@ export const getJadwalHarianByTanggal = async (req, res) => {
 };
 
 // GET jadwal harian dalam range tanggal (untuk admin dashboard chart)
-// Query: GET /jadwal-harian/range?from=YYYY-MM-DD&to=YYYY-MM-DD
 export const getJadwalHarianByRange = async (req, res) => {
   try {
     const { from, to } = req.query;
@@ -120,10 +130,47 @@ export const createJadwalHarian = async (req, res) => {
 };
 
 // PUT update status jadwal harian (dipakai petugas)
+// Hanya boleh diupdate dalam window jam_mulai–jam_selesai,
+// kecuali status sudah final (sudah_diambil / dibatalkan)
 export const updateStatusJadwalHarian = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, catatan } = req.body;
+
+    // Ambil data jadwal harian beserta jam dari jadwal tetap
+    const { data: existing, error: fetchError } = await supabaseAdmin
+      .from('jadwal_harian')
+      .select(`
+        status,
+        jadwal_tetap (jam_mulai, jam_selesai)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const isFinal = ['sudah_diambil', 'dibatalkan'].includes(existing.status);
+    if (isFinal) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Status sudah final, tidak dapat diubah.',
+      });
+    }
+
+    const { jam_mulai, jam_selesai } = existing.jadwal_tetap ?? {};
+    if (jam_mulai && jam_selesai && !isWithinScheduleWindow(jam_mulai, jam_selesai)) {
+      const now = new Date();
+      const current = now.getHours() * 60 + now.getMinutes();
+      const tooEarly = current < toMinutes(jam_mulai);
+
+      return res.status(400).json({
+        status: 'error',
+        message: tooEarly
+          ? `Pengangkutan belum dimulai. Jadwal mulai pukul ${jam_mulai.slice(0, 5)}.`
+          : `Waktu pengangkutan sudah selesai (${jam_selesai.slice(0, 5)}).`,
+      });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('jadwal_harian')
       .update({ status, catatan })
@@ -158,10 +205,8 @@ export const getJadwalByPetugas = async (req, res) => {
   try {
     const petugasId = req.user.id;
     const today = new Date().toISOString().split('T')[0];
-    const hariMap = { 0:'minggu',1:'senin',2:'selasa',3:'rabu',4:'kamis',5:'jumat',6:'sabtu' };
-    const hari = hariMap[new Date().getDay()];
+    const hari = HARI_MAP[new Date().getDay()];
 
-    // Ambil jadwal tetap hari ini untuk petugas ini
     const { data: jadwalTetapList, error: jtError } = await supabaseAdmin
       .from('jadwal_tetap')
       .select(`*, wilayah (id, nama_wilayah, kecamatan, kota)`)
@@ -174,7 +219,6 @@ export const getJadwalByPetugas = async (req, res) => {
       return res.json({ status: 'success', data: [] });
     }
 
-    // Auto-generate jadwal_harian kalau belum ada, lalu return
     const result = [];
     for (const jt of jadwalTetapList) {
       let { data: jh } = await supabaseAdmin
@@ -197,6 +241,11 @@ export const getJadwalByPetugas = async (req, res) => {
       result.push({ ...jh, jadwal_tetap: jt });
     }
 
+    // Urutkan berdasarkan jam_mulai
+    result.sort((a, b) =>
+      (a.jadwal_tetap?.jam_mulai ?? '').localeCompare(b.jadwal_tetap?.jam_mulai ?? '')
+    );
+
     res.json({ status: 'success', data: result });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -204,7 +253,6 @@ export const getJadwalByPetugas = async (req, res) => {
 };
 
 // GET riwayat jadwal harian untuk petugas yang sedang login
-// Mengembalikan semua jadwal yang sudah selesai atau dibatalkan, urut terbaru dulu
 export const getHistoryByPetugas = async (req, res) => {
   try {
     const petugasId = req.user.id;
