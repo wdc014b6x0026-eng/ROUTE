@@ -3,7 +3,7 @@ import { AppLayout, PageHeader } from "@/components/app-layout";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { apiFetch, type ApiUser, type ApiJadwalTetap } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { MapPin, Loader2, Home, Users } from "lucide-react";
+import { MapPin, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MapMarker } from "@/components/leaflet-map";
 
@@ -22,17 +22,21 @@ function Page() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (!user?.wilayah_id) { setLoading(false); return; }
+    if (!user?.id) { setLoading(false); return; }
 
-    Promise.all([
-      apiFetch<ApiUser[]>(`/users/wilayah/${user.wilayah_id}`),
-      apiFetch<ApiJadwalTetap[]>(`/jadwal-tetap/wilayah/${user.wilayah_id}`)
-        .then(list => list[0] ?? null),
-    ])
-      .then(([r, s]) => { setResidents(r); setSchedule(s); })
+    apiFetch<ApiJadwalTetap[]>("/jadwal-tetap")
+      .then(async (jadwalList) => {
+        const myJadwal = jadwalList.find(j => j.users?.id === user.id) ?? null;
+        setSchedule(myJadwal);
+
+        if (!myJadwal?.wilayah?.id) return;
+
+        const r = await apiFetch<ApiUser[]>(`/users/wilayah/${myJadwal.wilayah.id}`);
+        setResidents(r);
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [user?.wilayah_id]);
+  }, [user?.id]);
 
   const withCoords = residents.filter(r => r.lat != null && r.lng != null);
 
@@ -51,7 +55,6 @@ function Page() {
     color: "blue",
   }));
 
-  // Default center to Bali if no coords yet
   const center: [number, number] = filtered.length > 0
     ? [filtered[0].lat!, filtered[0].lng!]
     : [-8.5069, 115.2625];
@@ -69,9 +72,9 @@ function Page() {
         <div className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">{error}</div>
       )}
 
-      {!user?.wilayah_id && !loading && (
+      {!loading && !schedule && (
         <div className="bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground shadow-card text-sm">
-          Your account has no assigned wilayah. Ask an admin to assign you.
+          No schedule assigned yet. Ask an admin to create a schedule for you.
         </div>
       )}
 
@@ -79,9 +82,8 @@ function Page() {
         <div className="flex items-center justify-center h-64">
           <Loader2 className="size-6 animate-spin text-muted-foreground" />
         </div>
-      ) : user?.wilayah_id && (
+      ) : schedule && (
         <div className="space-y-4">
-          {/* Stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-card border border-border rounded-xl p-3 text-center shadow-card">
               <div className="flex items-center justify-center mb-1">
@@ -99,7 +101,6 @@ function Page() {
             </div>
           </div>
 
-          {/* Search */}
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -107,7 +108,6 @@ function Page() {
             className="w-full h-10 px-4 rounded-xl border border-input bg-background focus:ring-2 focus:ring-ring focus:outline-none text-sm"
           />
 
-          {/* Map */}
           <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium">
@@ -118,20 +118,13 @@ function Page() {
                 <span className="size-2.5 rounded-full bg-blue-500 inline-block" /> Residents
               </div>
             </div>
-            <Suspense
-              fallback={
-                <div className="h-[400px] flex items-center justify-center bg-muted/30">
-                  <Loader2 className="size-6 animate-spin text-muted-foreground" />
-                </div>
-              }
-            >
+            <Suspense fallback={
+              <div className="h-[400px] flex items-center justify-center bg-muted/30">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+              </div>
+            }>
               {filtered.length > 0 ? (
-                <LeafletMap
-                  markers={markers}
-                  center={center}
-                  className="h-[400px] w-full"
-                  zoom={14}
-                />
+                <LeafletMap markers={markers} center={center} className="h-[400px] w-full" zoom={14} />
               ) : (
                 <div className="h-[400px] flex flex-col items-center justify-center text-muted-foreground gap-2">
                   <MapPin className="size-8 opacity-30" />
@@ -145,7 +138,6 @@ function Page() {
             </Suspense>
           </div>
 
-          {/* Resident list */}
           <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border text-sm font-medium">Stop List</div>
             {residents.length === 0 ? (
@@ -155,9 +147,11 @@ function Page() {
             ) : (
               <div className="divide-y divide-border max-h-80 overflow-y-auto">
                 {residents
-                  .filter(r => !search ||
+                  .filter(r =>
+                    !search ||
                     r.nama.toLowerCase().includes(search.toLowerCase()) ||
-                    (r.alamat ?? "").toLowerCase().includes(search.toLowerCase()))
+                    (r.alamat ?? "").toLowerCase().includes(search.toLowerCase())
+                  )
                   .map((r, idx) => (
                     <div key={r.id} className="px-4 py-3 flex items-center gap-3">
                       <div className="size-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
@@ -170,7 +164,7 @@ function Page() {
                       <div className={cn(
                         "size-2 rounded-full shrink-0",
                         r.lat != null ? "bg-success" : "bg-muted-foreground/40"
-                      )} title={r.lat != null ? "Location set" : "No location"} />
+                      )} />
                     </div>
                   ))}
               </div>
