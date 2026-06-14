@@ -15,12 +15,13 @@ const getEffectiveDiff = (item, todayIdx, currentMinutes) => {
   return diff;
 };
 
-// GET semua jadwal tetap
+// GET semua jadwal tetap (hanya yang aktif; jadwal yang dinonaktifkan/dihapus tidak ditampilkan)
 export const getAllJadwalTetap = async (req, res) => {
   try {
     const { data, error } = await supabaseAdmin
       .from('jadwal_tetap')
-      .select(`*, wilayah (id, nama_wilayah, kecamatan, kota), users (id, nama, email)`);
+      .select(`*, wilayah (id, nama_wilayah, kecamatan, kota), users (id, nama, email)`)
+      .eq('is_active', true);
 
     if (error) throw error;
     res.json({ status: 'success', data });
