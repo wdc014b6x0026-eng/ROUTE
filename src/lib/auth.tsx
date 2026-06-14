@@ -2,11 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { createClient } from "@supabase/supabase-js";
 import type { Role } from "./mock-data";
 import { apiFetch, toApiRole, fromApiRole } from "./api";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import { supabase } from "./supabase";
 
 export interface User {
   id: string;

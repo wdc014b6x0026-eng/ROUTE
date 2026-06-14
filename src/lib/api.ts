@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
 function getToken() {
@@ -20,25 +22,19 @@ export async function apiFetch<T = unknown>(
   });
 
   if (res.status === 401) {
-    try {
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabase = createClient(
-        import.meta.env.VITE_SUPABASE_URL,
-        import.meta.env.VITE_SUPABASE_ANON_KEY
-      );
-      const { data } = await supabase.auth.refreshSession();
-      if (data.session) {
-        localStorage.setItem("route_token", data.session.access_token);
-        return apiFetch(path, options);
-      }
-    } catch {
-      // refresh gagal
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (!error && data.session) {
+      localStorage.setItem("route_token", data.session.access_token);
+      return apiFetch(path, options);
     }
-    localStorage.removeItem("route_token");
-    localStorage.removeItem("route_user");
-    window.location.href = "/login";
-    throw new Error("Session expired");
-  }
+  } catch { /* refresh gagal */ }
+
+  localStorage.removeItem("route_token");
+  localStorage.removeItem("route_user");
+  window.location.href = "/login";
+  throw new Error("Session expired");
+}
 
   const json = await res.json();
   if (!res.ok || json.status === "error") throw new Error(json.message ?? "Request failed");
