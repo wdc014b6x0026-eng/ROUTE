@@ -67,6 +67,6 @@ app.use((err, _req, res, _next) => {
 });
 
 startReminderScheduler();
-app.listen(PORT, () => {
-  console.log(`ROUTE API running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`ROUTE API running on http://0.0.0.0:${PORT}`);
 });
