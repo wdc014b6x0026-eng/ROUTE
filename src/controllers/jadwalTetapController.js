@@ -137,17 +137,17 @@ export const updateJadwalTetap = async (req, res) => {
   }
 };
 
-// DELETE jadwal tetap
+// DELETE jadwal tetap (soft delete - menonaktifkan jadwal, bukan menghapus baris)
 export const deleteJadwalTetap = async (req, res) => {
   try {
     const { id } = req.params;
     const { error } = await supabaseAdmin
       .from('jadwal_tetap')
-      .delete()
+      .update({ is_active: false })
       .eq('id', id);
 
     if (error) throw error;
-    res.json({ status: 'success', message: 'Jadwal tetap berhasil dihapus' });
+    res.json({ status: 'success', message: 'Jadwal tetap berhasil dinonaktifkan' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
