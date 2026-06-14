@@ -11,21 +11,33 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as EducationRouteImport } from './routes/education'
+import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PetugasStatusRouteImport } from './routes/petugas.status'
 import { Route as PetugasRequestRouteImport } from './routes/petugas.request'
 import { Route as PetugasProfileRouteImport } from './routes/petugas.profile'
+import { Route as PetugasMapRouteImport } from './routes/petugas.map'
 import { Route as PetugasJadwalHariIniRouteImport } from './routes/petugas.jadwal-hari-ini'
+import { Route as PetugasHistoryRouteImport } from './routes/petugas.history'
 import { Route as PetugasDashboardRouteImport } from './routes/petugas.dashboard'
 import { Route as AppStatusRouteImport } from './routes/app.status'
 import { Route as AppScheduleRouteImport } from './routes/app.schedule'
 import { Route as AppRequestRouteImport } from './routes/app.request'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppMapRouteImport } from './routes/app.map'
+import { Route as AppHistoryRouteImport } from './routes/app.history'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
+import { Route as AdminWilayahRouteImport } from './routes/admin.wilayah'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSchedulesRouteImport } from './routes/admin.schedules'
 import { Route as AdminRequestsRouteImport } from './routes/admin.requests'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminPetugasRouteImport } from './routes/admin.petugas'
+import { Route as AdminMapRouteImport } from './routes/admin.map'
+import { Route as AdminEducationRouteImport } from './routes/admin.education'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminAnnouncementsRouteImport } from './routes/admin.announcements'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -35,6 +47,16 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationRoute = EducationRouteImport.update({
+  id: '/education',
+  path: '/education',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnouncementsRoute = AnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -57,9 +79,19 @@ const PetugasProfileRoute = PetugasProfileRouteImport.update({
   path: '/petugas/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PetugasMapRoute = PetugasMapRouteImport.update({
+  id: '/petugas/map',
+  path: '/petugas/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PetugasJadwalHariIniRoute = PetugasJadwalHariIniRouteImport.update({
   id: '/petugas/jadwal-hari-ini',
   path: '/petugas/jadwal-hari-ini',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PetugasHistoryRoute = PetugasHistoryRouteImport.update({
+  id: '/petugas/history',
+  path: '/petugas/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PetugasDashboardRoute = PetugasDashboardRouteImport.update({
@@ -87,9 +119,29 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/app/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppMapRoute = AppMapRouteImport.update({
+  id: '/app/map',
+  path: '/app/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/app/history',
+  path: '/app/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/app/dashboard',
   path: '/app/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWilayahRoute = AdminWilayahRouteImport.update({
+  id: '/admin/wilayah',
+  path: '/admin/wilayah',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminSchedulesRoute = AdminSchedulesRouteImport.update({
@@ -112,41 +164,85 @@ const AdminPetugasRoute = AdminPetugasRouteImport.update({
   path: '/admin/petugas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMapRoute = AdminMapRouteImport.update({
+  id: '/admin/map',
+  path: '/admin/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminEducationRoute = AdminEducationRouteImport.update({
+  id: '/admin/education',
+  path: '/admin/education',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
+  id: '/admin/announcements',
+  path: '/admin/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/education': typeof EducationRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/education': typeof AdminEducationRoute
+  '/admin/map': typeof AdminMapRoute
   '/admin/petugas': typeof AdminPetugasRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/schedules': typeof AdminSchedulesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/wilayah': typeof AdminWilayahRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/map': typeof AppMapRoute
   '/app/profile': typeof AppProfileRoute
   '/app/request': typeof AppRequestRoute
   '/app/schedule': typeof AppScheduleRoute
   '/app/status': typeof AppStatusRoute
   '/petugas/dashboard': typeof PetugasDashboardRoute
+  '/petugas/history': typeof PetugasHistoryRoute
   '/petugas/jadwal-hari-ini': typeof PetugasJadwalHariIniRoute
+  '/petugas/map': typeof PetugasMapRoute
   '/petugas/profile': typeof PetugasProfileRoute
   '/petugas/request': typeof PetugasRequestRoute
   '/petugas/status': typeof PetugasStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/education': typeof EducationRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/education': typeof AdminEducationRoute
+  '/admin/map': typeof AdminMapRoute
   '/admin/petugas': typeof AdminPetugasRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/schedules': typeof AdminSchedulesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/wilayah': typeof AdminWilayahRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/map': typeof AppMapRoute
   '/app/profile': typeof AppProfileRoute
   '/app/request': typeof AppRequestRoute
   '/app/schedule': typeof AppScheduleRoute
   '/app/status': typeof AppStatusRoute
   '/petugas/dashboard': typeof PetugasDashboardRoute
+  '/petugas/history': typeof PetugasHistoryRoute
   '/petugas/jadwal-hari-ini': typeof PetugasJadwalHariIniRoute
+  '/petugas/map': typeof PetugasMapRoute
   '/petugas/profile': typeof PetugasProfileRoute
   '/petugas/request': typeof PetugasRequestRoute
   '/petugas/status': typeof PetugasStatusRoute
@@ -154,19 +250,31 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/education': typeof EducationRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/education': typeof AdminEducationRoute
+  '/admin/map': typeof AdminMapRoute
   '/admin/petugas': typeof AdminPetugasRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/requests': typeof AdminRequestsRoute
   '/admin/schedules': typeof AdminSchedulesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/wilayah': typeof AdminWilayahRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/history': typeof AppHistoryRoute
+  '/app/map': typeof AppMapRoute
   '/app/profile': typeof AppProfileRoute
   '/app/request': typeof AppRequestRoute
   '/app/schedule': typeof AppScheduleRoute
   '/app/status': typeof AppStatusRoute
   '/petugas/dashboard': typeof PetugasDashboardRoute
+  '/petugas/history': typeof PetugasHistoryRoute
   '/petugas/jadwal-hari-ini': typeof PetugasJadwalHariIniRoute
+  '/petugas/map': typeof PetugasMapRoute
   '/petugas/profile': typeof PetugasProfileRoute
   '/petugas/request': typeof PetugasRequestRoute
   '/petugas/status': typeof PetugasStatusRoute
@@ -175,57 +283,93 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/announcements'
+    | '/education'
     | '/login'
     | '/register'
+    | '/admin/announcements'
+    | '/admin/dashboard'
+    | '/admin/education'
+    | '/admin/map'
     | '/admin/petugas'
     | '/admin/profile'
     | '/admin/requests'
     | '/admin/schedules'
+    | '/admin/users'
+    | '/admin/wilayah'
     | '/app/dashboard'
+    | '/app/history'
+    | '/app/map'
     | '/app/profile'
     | '/app/request'
     | '/app/schedule'
     | '/app/status'
     | '/petugas/dashboard'
+    | '/petugas/history'
     | '/petugas/jadwal-hari-ini'
+    | '/petugas/map'
     | '/petugas/profile'
     | '/petugas/request'
     | '/petugas/status'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/announcements'
+    | '/education'
     | '/login'
     | '/register'
+    | '/admin/announcements'
+    | '/admin/dashboard'
+    | '/admin/education'
+    | '/admin/map'
     | '/admin/petugas'
     | '/admin/profile'
     | '/admin/requests'
     | '/admin/schedules'
+    | '/admin/users'
+    | '/admin/wilayah'
     | '/app/dashboard'
+    | '/app/history'
+    | '/app/map'
     | '/app/profile'
     | '/app/request'
     | '/app/schedule'
     | '/app/status'
     | '/petugas/dashboard'
+    | '/petugas/history'
     | '/petugas/jadwal-hari-ini'
+    | '/petugas/map'
     | '/petugas/profile'
     | '/petugas/request'
     | '/petugas/status'
   id:
     | '__root__'
     | '/'
+    | '/announcements'
+    | '/education'
     | '/login'
     | '/register'
+    | '/admin/announcements'
+    | '/admin/dashboard'
+    | '/admin/education'
+    | '/admin/map'
     | '/admin/petugas'
     | '/admin/profile'
     | '/admin/requests'
     | '/admin/schedules'
+    | '/admin/users'
+    | '/admin/wilayah'
     | '/app/dashboard'
+    | '/app/history'
+    | '/app/map'
     | '/app/profile'
     | '/app/request'
     | '/app/schedule'
     | '/app/status'
     | '/petugas/dashboard'
+    | '/petugas/history'
     | '/petugas/jadwal-hari-ini'
+    | '/petugas/map'
     | '/petugas/profile'
     | '/petugas/request'
     | '/petugas/status'
@@ -233,19 +377,31 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnnouncementsRoute: typeof AnnouncementsRoute
+  EducationRoute: typeof EducationRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminEducationRoute: typeof AdminEducationRoute
+  AdminMapRoute: typeof AdminMapRoute
   AdminPetugasRoute: typeof AdminPetugasRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminRequestsRoute: typeof AdminRequestsRoute
   AdminSchedulesRoute: typeof AdminSchedulesRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminWilayahRoute: typeof AdminWilayahRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppMapRoute: typeof AppMapRoute
   AppProfileRoute: typeof AppProfileRoute
   AppRequestRoute: typeof AppRequestRoute
   AppScheduleRoute: typeof AppScheduleRoute
   AppStatusRoute: typeof AppStatusRoute
   PetugasDashboardRoute: typeof PetugasDashboardRoute
+  PetugasHistoryRoute: typeof PetugasHistoryRoute
   PetugasJadwalHariIniRoute: typeof PetugasJadwalHariIniRoute
+  PetugasMapRoute: typeof PetugasMapRoute
   PetugasProfileRoute: typeof PetugasProfileRoute
   PetugasRequestRoute: typeof PetugasRequestRoute
   PetugasStatusRoute: typeof PetugasStatusRoute
@@ -265,6 +421,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education': {
+      id: '/education'
+      path: '/education'
+      fullPath: '/education'
+      preLoaderRoute: typeof EducationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/announcements': {
+      id: '/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AnnouncementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -295,11 +465,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PetugasProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/petugas/map': {
+      id: '/petugas/map'
+      path: '/petugas/map'
+      fullPath: '/petugas/map'
+      preLoaderRoute: typeof PetugasMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/petugas/jadwal-hari-ini': {
       id: '/petugas/jadwal-hari-ini'
       path: '/petugas/jadwal-hari-ini'
       fullPath: '/petugas/jadwal-hari-ini'
       preLoaderRoute: typeof PetugasJadwalHariIniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/petugas/history': {
+      id: '/petugas/history'
+      path: '/petugas/history'
+      fullPath: '/petugas/history'
+      preLoaderRoute: typeof PetugasHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/petugas/dashboard': {
@@ -337,11 +521,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/map': {
+      id: '/app/map'
+      path: '/app/map'
+      fullPath: '/app/map'
+      preLoaderRoute: typeof AppMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/history': {
+      id: '/app/history'
+      path: '/app/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/dashboard': {
       id: '/app/dashboard'
       path: '/app/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/wilayah': {
+      id: '/admin/wilayah'
+      path: '/admin/wilayah'
+      fullPath: '/admin/wilayah'
+      preLoaderRoute: typeof AdminWilayahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/schedules': {
@@ -372,24 +584,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPetugasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/map': {
+      id: '/admin/map'
+      path: '/admin/map'
+      fullPath: '/admin/map'
+      preLoaderRoute: typeof AdminMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/education': {
+      id: '/admin/education'
+      path: '/admin/education'
+      fullPath: '/admin/education'
+      preLoaderRoute: typeof AdminEducationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/announcements': {
+      id: '/admin/announcements'
+      path: '/admin/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminAnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnnouncementsRoute: AnnouncementsRoute,
+  EducationRoute: EducationRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  AdminAnnouncementsRoute: AdminAnnouncementsRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminEducationRoute: AdminEducationRoute,
+  AdminMapRoute: AdminMapRoute,
   AdminPetugasRoute: AdminPetugasRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminRequestsRoute: AdminRequestsRoute,
   AdminSchedulesRoute: AdminSchedulesRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminWilayahRoute: AdminWilayahRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppMapRoute: AppMapRoute,
   AppProfileRoute: AppProfileRoute,
   AppRequestRoute: AppRequestRoute,
   AppScheduleRoute: AppScheduleRoute,
   AppStatusRoute: AppStatusRoute,
   PetugasDashboardRoute: PetugasDashboardRoute,
+  PetugasHistoryRoute: PetugasHistoryRoute,
   PetugasJadwalHariIniRoute: PetugasJadwalHariIniRoute,
+  PetugasMapRoute: PetugasMapRoute,
   PetugasProfileRoute: PetugasProfileRoute,
   PetugasRequestRoute: PetugasRequestRoute,
   PetugasStatusRoute: PetugasStatusRoute,
@@ -397,13 +649,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

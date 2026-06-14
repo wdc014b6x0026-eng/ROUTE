@@ -7,11 +7,14 @@ export interface User {
   role: Role;
   area?: string;
   avatar?: string;
+  address?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export const mockUsers: Record<Role, User> = {
-  resident: { id: "u1", name: "Made Ayu", email: "warga@route.id", role: "resident", area: "Ubud, Gianyar" },
-  transporter: { id: "t1", name: "Wayan Sutha", email: "petugas@route.id", role: "transporter", area: "Zone A — Ubud" },
+  resident: { id: "u1", name: "Made Ayu", email: "warga@route.id", role: "resident", area: "Ubud, Gianyar", address: "Jl. Raya Ubud No. 12, Ubud, Gianyar", lat: -8.5069, lng: 115.2625 },
+  transporter: { id: "t1", name: "Wayan Sutha", email: "petugas@route.id", role: "transporter", area: "Zone A — Ubud", address: "Jl. Andong No. 5, Ubud", lat: -8.5088, lng: 115.2590 },
   admin: { id: "a1", name: "Putu Aditya", email: "admin@route.id", role: "admin" },
 };
 
@@ -62,10 +65,10 @@ export const mockHistory = [
 ];
 
 export const mockTodayJobs = [
-  { id: "j1", resident: "Made Ayu", address: "Jl. Raya Ubud No. 12", notes: "Organic, sorted", status: "scheduled" as PickupStatus, time: "07:00" },
-  { id: "j2", resident: "Ketut Dewi", address: "Jl. Monkey Forest 8", notes: "Used cooking oil 2L", status: "on_the_way" as PickupStatus, time: "07:30" },
-  { id: "j3", resident: "I Gusti Bagus", address: "Jl. Hanoman 22", notes: "Mixed waste — large", status: "scheduled" as PickupStatus, time: "08:00" },
-  { id: "j4", resident: "Nyoman Sari", address: "Jl. Tegallalang 5", notes: "Recyclables", status: "picked_up" as PickupStatus, time: "06:30" },
+  { id: "j1", resident: "Made Ayu", address: "Jl. Raya Ubud No. 12", notes: "Organic, sorted", status: "scheduled" as PickupStatus, time: "07:00", lat: -8.5069, lng: 115.2625 },
+  { id: "j2", resident: "Ketut Dewi", address: "Jl. Monkey Forest 8", notes: "Used cooking oil 2L", status: "on_the_way" as PickupStatus, time: "07:30", lat: -8.5183, lng: 115.2622 },
+  { id: "j3", resident: "I Gusti Bagus", address: "Jl. Hanoman 22", notes: "Mixed waste — large", status: "scheduled" as PickupStatus, time: "08:00", lat: -8.5157, lng: 115.2594 },
+  { id: "j4", resident: "Nyoman Sari", address: "Jl. Tegallalang 5", notes: "Recyclables", status: "picked_up" as PickupStatus, time: "06:30", lat: -8.4476, lng: 115.2764 },
 ];
 
 export const mockTransporters = [
@@ -75,11 +78,16 @@ export const mockTransporters = [
 ];
 
 export const mockAllUsers = [
-  { id: "u1", name: "Made Ayu", email: "warga@route.id", role: "Resident", area: "Ubud", status: "Active" },
-  { id: "u2", name: "Ketut Dewi", email: "ketut@mail.com", role: "Resident", area: "Ubud", status: "Active" },
-  { id: "t1", name: "Wayan Sutha", email: "wayan@route.id", role: "Transporter", area: "Zone A", status: "Active" },
-  { id: "t2", name: "Komang Aris", email: "komang@route.id", role: "Transporter", area: "Zone B", status: "Pending" },
-  { id: "a1", name: "Putu Aditya", email: "admin@route.id", role: "Admin", area: "—", status: "Active" },
+  { id: "u1", name: "Made Ayu", email: "warga@route.id", role: "Resident", area: "Ubud", status: "Active", lat: -8.5069, lng: 115.2625, address: "Jl. Raya Ubud No. 12" },
+  { id: "u2", name: "Ketut Dewi", email: "ketut@mail.com", role: "Resident", area: "Ubud", status: "Active", lat: -8.5183, lng: 115.2622, address: "Jl. Monkey Forest 8" },
+  { id: "u3", name: "I Gusti Bagus", email: "bagus@mail.com", role: "Resident", area: "Ubud", status: "Active", lat: -8.5157, lng: 115.2594, address: "Jl. Hanoman 22" },
+  { id: "u4", name: "Nyoman Sari", email: "sari@mail.com", role: "Resident", area: "Tegallalang", status: "Active", lat: -8.4476, lng: 115.2764, address: "Jl. Tegallalang 5" },
+  { id: "u5", name: "Luh Gede", email: "luh@mail.com", role: "Resident", area: "Sanur", status: "Active", lat: -8.7044, lng: 115.2627, address: "Jl. Danau Tamblingan 40" },
+  { id: "u6", name: "Wayan Putra", email: "wputra@mail.com", role: "Resident", area: "Denpasar", status: "Pending", lat: -8.6705, lng: 115.2126, address: "Jl. Teuku Umar 88" },
+  { id: "t1", name: "Wayan Sutha", email: "wayan@route.id", role: "Transporter", area: "Zone A — Ubud", status: "Active", lat: -8.5088, lng: 115.2590, address: "Jl. Andong No. 5" },
+  { id: "t2", name: "Komang Aris", email: "komang@route.id", role: "Transporter", area: "Zone B — Sanur", status: "Active", lat: -8.7090, lng: 115.2580, address: "Jl. Bypass Ngurah Rai 12" },
+  { id: "t3", name: "Putu Eka", email: "putu@route.id", role: "Transporter", area: "Zone C — Denpasar", status: "Pending", lat: -8.6528, lng: 115.2192, address: "Jl. Gatot Subroto 3" },
+  { id: "a1", name: "Putu Aditya", email: "admin@route.id", role: "Admin", area: "—", status: "Active", lat: undefined, lng: undefined, address: "—" },
 ];
 
 export const pickupTrend = [

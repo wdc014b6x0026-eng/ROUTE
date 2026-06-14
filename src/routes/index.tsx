@@ -20,8 +20,8 @@ function Nav() {
   return (
     <header className="sticky top-0 z-40 bg-background/80 backdrop-blur border-b border-border">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/assets/logo-full.png" alt="ROUTE" className="h-12 object-contain" />
+        <Link to="/">
+          <img src="/logo-full.png" alt="ROUTE" className="h-10 w-auto" />
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
           <a href="#features" className="hover:text-primary transition">Features</a>
@@ -214,7 +214,7 @@ function Landing() {
           </ul>
         </div>
         <div className="bg-gradient-hero rounded-3xl p-10 text-primary-foreground shadow-soft">
-          <img src="/assets/logo-icon-white.png" alt="ROUTE" className="size-22 mb-6 object-contain opacity-90" />
+          <img src="/logo-icon-white.png" alt="ROUTE" className="size-16 mb-6 object-contain" />
           <div className="text-4xl font-display font-bold">2030</div>
           <div className="text-xl mt-2 opacity-90">Bali's zero-waste vision</div>
           <p className="mt-4 opacity-80">Join thousands of households already coordinating pickups through ROUTE to make this vision real.</p>
@@ -239,7 +239,8 @@ function Landing() {
       <footer className="border-t border-border bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src="/assets/logo-icon.png" alt="ROUTE" className="h-18 object-contain" />
+            <img src="/logo-icon.png" alt="ROUTE" className="size-8 object-contain" />
+            <span className="text-muted-foreground text-sm">— Smart Waste Coordination</span>
           </div>
           <div className="text-sm text-muted-foreground">© 2026 ROUTE. Built for a sustainable Bali.</div>
         </div>
